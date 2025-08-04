@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUERCIA</title>
+  <style>
+    /* Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
+
+    /* Reset and layout (mobile-first) */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: visible; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #fff;
+      color: #000;
+      position: relative;
+    }
+
+    /* Logo container for drag+rotate */
+    .logo-container {
+      position: absolute;
+      top: 15%; left: 50%; /* header-like position */
+      width: 48vw; /* 20% larger */
+      max-width: 360px; /* scaled max */
+      transform: translate(-50%, -50%);
+      perspective: 1000px;
+      cursor: grab;
+      z-index: 9999;
+    }
+    .logo {
+      width: 100%;
+      height: auto;
+      transform-style: preserve-3d;
+      transform-origin: center center;
+      animation: rotateY 10s linear infinite;
+      user-select: none;
+      pointer-events: none;
+    }
+    @keyframes rotateY { to { transform: rotateY(360deg); } }
+
+    /* Dropdown menu styling */
+    .menu-container {
+      position: absolute;
+      top: 40%; left: 50%; /* slid down a bit (was 35%) */
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1000;
+    }
+    #menu-toggle {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: 1px solid #000;
+      background: none;
+      cursor: pointer;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    #menu-toggle:hover { background-color: #000; color: #fff; }
+    #menu-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%; left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 1px solid #000;
+      list-style: none;
+      padding: 0.5rem 0;
+      z-index: 1001;
+    }
+    #menu-dropdown li a {
+      display: block;
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+      color: #000;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.9rem;
+    }
+    #menu-dropdown li a:hover { background: #000; color: #fff; }
+
+    /* Event box styling */
+    .event-box {
+      position: absolute;
+      top: 70%; left: 50%; /* slid down with menu */
+      transform: translate(-50%, -50%);
+      background: #f5f5f5;
+      border: 1px solid #000;
+      padding: 1rem;
+      max-width: 90%;
+      text-align: center;
+      font-family: 'Courier Prime', monospace;
+      z-index: 500;
+    }
+    .event-box p { margin: 0.25rem 0; font-size: 1rem; }
+    .event-button {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #000;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-family: 'Courier Prime', monospace;
+      color: #000;
+    }
+    .event-button:hover { background: #000; color: #fff; }
+
+    /* Footer subtitle fixed at bottom */
+    .subtitle {
+      position: absolute;
+      bottom: 5%; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.7rem; /* smaller to fit one line */
+      text-align: center;
+      padding: 0 1rem;
+      max-width: 90%;
+      line-height: 1.4;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container" id="logo-container">
+    <img src="logo.png" alt="QUERCIA Logo" class="logo" id="logo">
+  </div>
+
+  <div class="menu-container">
+    <button id="menu-toggle">Menu</button>
+    <ul id="menu-dropdown">
+      <li><a href="our-story.html">OUR STORY</a></li>
+      <li><a href="contacts.html">CONTACTS</a></li>
+    </ul>
+  </div>
+
+  <div class="event-box">
+    <p class="event-date">09.08.2025</p>
+    <p class="event-location">KUTA, PORTO ROTONDO</p>
+    <a href="https://xceed.me/en/olbia/event/0908-quercia-whos-your-daddy-at-kuta-porto-rotondo--197248?fbclid=PAQ0xDSwL9WUdleHRuA2FlbQIxMQABp_ML-sz_HjlqY2YhtBv6Me_XjeKpnvBjKVOtz0UxeHVJOm9Ox9HkZg8DWt80_aem_Xew4srLt-qxf9ppVa03wiA" target="_blank" class="event-button">Ticket</a>
+  </div>
+
+  <p class="subtitle">We care about good music, not good websites</p>
+
+  <script>
+    // Drag logic for logo
+    const container = document.getElementById('logo-container');
+    let isDragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
+
+    container.addEventListener('pointerdown', e => {
+      e.preventDefault(); isDragging = true;
+      container.setPointerCapture(e.pointerId);
+      startX = e.clientX; startY = e.clientY;
+      const rect = container.getBoundingClientRect();
+      origX = rect.left + rect.width/2;
+      origY = rect.top + rect.height/2;
+      container.style.cursor = 'grabbing';
+    });
+
+    container.addEventListener('pointermove', e => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      container.style.left = origX + dx + 'px';
+      container.style.top = origY + dy + 'px';
+      container.style.transform = 'translate(-50%, -50%)';
+    });
+
+    container.addEventListener('pointerup', e => {
+      isDragging = false;
+      container.releasePointerCapture(e.pointerId);
+      container.style.cursor = 'grab';
+    });
+
+    // Dropdown toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const dropdown = document.getElementById('menu-dropdown');
+    menuToggle.addEventListener('click', () => {
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+  </script>
+</body>
+</html>
