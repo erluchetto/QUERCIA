@@ -1,0 +1,9 @@
+{
+  "name": "quercia-contact-form",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.500.0",
+    "node-fetch": "^2.6.12"
+  }
+}
