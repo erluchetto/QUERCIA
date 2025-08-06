@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact | QUERCIA</title>
+  <style>
+    /* Reset and base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #fff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    body { display: flex; align-items: center; justify-content: center; padding: 1rem; }
+
+    /* Form container */
+    .form-container { width: 100%; max-width: 360px; }
+    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 1rem; }
+    form { display: flex; flex-direction: column; }
+    label { font-family: 'Courier Prime', monospace; font-size: 0.9rem; margin-bottom: 0.25rem; }
+    input, textarea { border: 1px solid #000; padding: 0.5rem; margin-bottom: 1rem; font-family: inherit; font-size: 1rem; }
+    textarea { resize: vertical; min-height: 100px; }
+    button {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #000;
+      background: none;
+      cursor: pointer;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    button:hover { background: #000; color: #fff; transition: background-color 0.3s, color 0.3s; }
+  </style>
+  <!-- reCAPTCHA widget -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+  <div class="form-container">
+    <h1>Contact Us</h1>
+    <form id="contact-form" method="POST" action="/api/contact">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="comment">Comment</label>
+      <textarea id="comment" name="comment" required></textarea>
+
+      <!-- reCAPTCHA widget -->
+      <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('contact-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name    = e.target.name.value;
+      const email   = e.target.email.value;
+      const comment = e.target.comment.value;
+      const token   = grecaptcha.getResponse();
+
+      if (!token) {
+        alert('Please complete the reCAPTCHA challenge.');
+        return;
+      }
+
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, comment, token })
+      });
+
+      if (res.ok) {
+        alert('Thank you! Your message has been sent.');
+        e.target.reset();
+        grecaptcha.reset();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'An error occurred.');
+      }
+    });
+  </script>
+</body>
+</html>
