@@ -52,7 +52,7 @@ module.exports = async (req, res) => {
       },
       Subject: { Data: 'New Contact Form Submission' },
     },
-    Source: process.env.SES_FROM_ADDRESS, // verified sender email in SES
+    Source: process.env.no-reply@querciamusic.com, // verified sender email in SES
   };
 
   try {
