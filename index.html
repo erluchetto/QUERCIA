@@ -46,7 +46,7 @@
     /* Dropdown menu styling */
     .menu-container {
       position: absolute;
-      top: 40%; left: 50%;
+      top: 35%; left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
       z-index: 1000;
@@ -59,32 +59,52 @@
       cursor: pointer;
       font-weight: 700;
       text-transform: uppercase;
+      font-family: 'Courier Prime', monospace;
+      color: #000 !important;
+      -webkit-appearance: none;
+      appearance: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    #menu-toggle:hover { background-color: #000; color: #fff; }
+    #menu-toggle:hover {
+      background-color: #000;
+      color: #fff;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    #menu-toggle:focus,
+    #menu-toggle:active {
+      outline: none;
+      background: none;
+      color: #000 !important;
+    }
     #menu-dropdown {
       display: none;
       position: absolute;
       top: 100%; left: 0;
       width: 100%;
-      transform: translateY(0);
-      background: #fff;
-      border: 1px solid #000;
+      background: transparent;
+      border: none;
+      box-shadow: none;
       list-style: none;
       padding: 0.5rem 0;
-      box-sizing: border-box;
       text-align: center;
       z-index: 1001;
     }
-    #menu-dropdown li a {
+    #menu-dropdown li a,
+    #menu-dropdown li a:visited {
       display: block;
       padding: 0.5rem 1rem;
       text-decoration: none;
       color: #000;
       font-family: 'Courier Prime', monospace;
       font-size: 0.9rem;
-      text-align: center;
     }
-    #menu-dropdown li a:hover { background: #000; color: #fff; }
+    #menu-dropdown li a:hover {
+      background: #000;
+      color: #fff;
+    }
+    #menu-dropdown li a:focus {
+      outline: none;
+    }
 
     /* Event box styling */
     .event-box {
@@ -150,18 +170,40 @@
   <p class="subtitle">We care about good music, not good websites</p>
 
   <script>
-    // Drag logic for logo
+    // Drag logic
     const container = document.getElementById('logo-container');
     let isDragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
 
-    container.addEventListener('pointerdown', e => { e.preventDefault(); isDragging = true; container.setPointerCapture(e.pointerId); startX = e.clientX; startY = e.clientY; const rect = container.getBoundingClientRect(); origX = rect.left + rect.width/2; origY = rect.top + rect.height/2; container.style.cursor = 'grabbing'; });
-    container.addEventListener('pointermove', e => { if (!isDragging) return; const dx = e.clientX - startX; const dy = e.clientY - startY; container.style.left = origX + dx + 'px'; container.style.top = origY + dy + 'px'; container.style.transform = 'translate(-50%, -50%)'; });
-    container.addEventListener('pointerup', e => { isDragging = false; container.releasePointerCapture(e.pointerId); container.style.cursor = 'grab'; });
+    container.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      isDragging = true;
+      container.setPointerCapture(e.pointerId);
+      startX = e.clientX; startY = e.clientY;
+      const rect = container.getBoundingClientRect();
+      origX = rect.left + rect.width/2;
+      origY = rect.top + rect.height/2;
+      container.style.cursor = 'grabbing';
+    });
+    container.addEventListener('pointermove', e => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      container.style.left = origX + dx + 'px';
+      container.style.top  = origY + dy + 'px';
+      container.style.transform = 'translate(-50%, -50%)';
+    });
+    container.addEventListener('pointerup', e => {
+      isDragging = false;
+      container.releasePointerCapture(e.pointerId);
+      container.style.cursor = 'grab';
+    });
 
-    // Dropdown toggle and outside click handling
+    // Dropdown toggle
     const menuToggle = document.getElementById('menu-toggle');
     const dropdown = document.getElementById('menu-dropdown');
-    menuToggle.addEventListener('click', e => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
+    menuToggle.addEventListener('click', e => {
+      e.stopPropagation();
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
     document.addEventListener('click', () => { dropdown.style.display = 'none'; });
   </script>
 </body>
