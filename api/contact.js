@@ -1,67 +1,49 @@
 // api/contact.js
 
-const fetch = require('node-fetch');
-const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
+import fetch from 'node-fetch';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
-// Initialize AWS SES client
 const ses = new SESClient({ region: process.env.AWS_REGION });
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
-
-  let body;
+export default async function handler(req, res) {
   try {
-    body = JSON.parse(req.body);
-  } catch (err) {
-    res.status(400).json({ error: 'Invalid JSON' });
-    return;
-  }
-
-  const { name, email, comment, token } = body;
-  if (!name || !email || !comment || !token) {
-    res.status(400).json({ error: 'Missing fields' });
-    return;
-  }
-
-  // Verify reCAPTCHA
-  const recRes = await fetch(
-    'https://www.google.com/recaptcha/api/siteverify',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${process.env.RECAPTCHA_SECRET}&response=${token}`
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
     }
-  );
-  const recData = await recRes.json();
-  if (!recData.success) {
-    res.status(400).json({ error: 'reCAPTCHA verification failed' });
-    return;
-  }
 
-  // Prepare SES email parameters
-  const params = {
-    Destination: {
-      ToAddresses: ['laquerciamusic@gmail.com'],
-    },
-    Message: {
-      Body: {
-        Text: { Data: `Name: ${name}\nEmail: ${email}\nComment:\n${comment}` },
+    const { name, email, comment, token } = req.body || {};
+    if (!name || !email || !comment || !token) {
+      return res.status(400).json({ error: 'Missing fields' });
+    }
+
+    // 1) Verify reCAPTCHA
+    const recRes = await fetch(
+      'https://www.google.com/recaptcha/api/siteverify',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `secret=${process.env.RECAPTCHA_SECRET}&response=${token}`
+      }
+    );
+    const recData = await recRes.json();
+    if (!recData.success) {
+      return res.status(400).json({ error: 'reCAPTCHA verification failed' });
+    }
+
+    // 2) Send via SES
+    const params = {
+      Destination: { ToAddresses: ['laquerciamusic@gmail.com'] },
+      Message: {
+        Body: { Text: { Data: `Name: ${name}\nEmail: ${email}\nComment:\n${comment}` } },
+        Subject: { Data: 'New Contact Form Submission' }
       },
-      Subject: { Data: 'New Contact Form Submission' },
-    },
-    Source: process.env.no-reply@querciamusic.com, // verified sender email in SES
-  };
+      Source: process.env.SES_FROM_ADDRESS
+    };
+    await ses.send(new SendEmailCommand(params));
 
-  try {
-    // Send email via AWS SES
-    const command = new SendEmailCommand(params);
-    await ses.send(command);
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('SES error:', error);
-    res.status(500).json({ error: 'Email sending failed' });
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('🛑 Handler error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
-};
+}
