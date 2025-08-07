@@ -33,6 +33,17 @@
     }
     button:hover { background: #000; color: #fff; transition: background-color 0.3s, color 0.3s; }
 
+    /* CAPTCHA wrapper to center and scale */
+    .captcha-wrapper {
+      text-align: center;
+      margin-bottom: 1.5rem; /* space from submit button */
+    }
+    .captcha-wrapper .g-recaptcha {
+      display: inline-block;
+      transform: scale(0.85);
+      transform-origin: 0 0;
+    }
+
     /* Message box under button */
     .form-message {
       margin-top: 0.5rem;
@@ -58,8 +69,10 @@
       <label for="comment">Comment</label>
       <textarea id="comment" name="comment" required></textarea>
 
-      <!-- reCAPTCHA widget -->
-      <div class="g-recaptcha" data-sitekey="6LeKzpwrAAAAAJHNB45KPERUBjj89xypXdQWDw5r"></div>
+      <!-- reCAPTCHA widget centered and scaled -->
+      <div class="captcha-wrapper">
+        <div class="g-recaptcha" data-sitekey="6LeKzpwrAAAAAJHNB45KPERUBjj89xypXdQWDw5r"></div>
+      </div>
 
       <button type="submit">Submit</button>
       <div id="form-message" class="form-message"></div>
@@ -104,5 +117,6 @@
   </script>
 </body>
 </html>
+
 
 
