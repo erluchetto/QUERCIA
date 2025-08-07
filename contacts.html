@@ -13,7 +13,8 @@
 
     /* Form container */
     .form-container { width: 100%; max-width: 360px; }
-    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 1rem; }
+    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; }
+    .social { font-family: 'Courier Prime', monospace; font-size: 0.9rem; text-align: center; margin-bottom: 1rem; }
     form { display: flex; flex-direction: column; }
     label { font-family: 'Courier Prime', monospace; font-size: 0.9rem; margin-bottom: 0.25rem; }
     input, textarea { border: 1px solid #000; padding: 0.5rem; margin-bottom: 1rem; font-family: inherit; font-size: 1rem; }
@@ -26,8 +27,17 @@
       cursor: pointer;
       font-weight: 700;
       text-transform: uppercase;
+      font-family: 'Courier Prime', monospace;
     }
     button:hover { background: #000; color: #fff; transition: background-color 0.3s, color 0.3s; }
+
+    /* Message box under button */
+    .form-message {
+      margin-top: 0.5rem;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.9rem;
+      text-align: center;
+    }
   </style>
   <!-- reCAPTCHA widget -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -35,6 +45,7 @@
 <body>
   <div class="form-container">
     <h1>Contact Us</h1>
+    <p class="social">Instagram: <a href="https://www.instagram.com/querciamusic" target="_blank">@querciamusic</a></p>
     <form id="contact-form" method="POST" action="/api/contact">
       <label for="name">Name</label>
       <input type="text" id="name" name="name" required>
@@ -49,39 +60,46 @@
       <div class="g-recaptcha" data-sitekey="6LeKzpwrAAAAAJHNB45KPERUBjj89xypXdQWDw5r"></div>
 
       <button type="submit">Submit</button>
+      <div id="form-message" class="form-message"></div>
     </form>
   </div>
 
-<script>
-  document.getElementById('contact-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    try {
-      const name    = e.target.name.value;
-      const email   = e.target.email.value;
-      const comment = e.target.comment.value;
-      const token   = grecaptcha.getResponse();
+  <script>
+    const form = document.getElementById('contact-form');
+    const msgBox = document.getElementById('form-message');
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      msgBox.textContent = '';
+      try {
+        const name    = e.target.name.value;
+        const email   = e.target.email.value;
+        const comment = e.target.comment.value;
+        const token   = grecaptcha.getResponse();
 
-      if (!token) throw new Error('Please complete the reCAPTCHA.');
+        if (!token) throw new Error('Please complete the reCAPTCHA.');
 
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, comment, token })
-      });
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, comment, token })
+        });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Server returned ${res.status}`);
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || `Server returned ${res.status}`);
+        }
+
+        msgBox.style.color = 'green';
+        msgBox.textContent = 'Thank you! Your message has been sent.';
+        e.target.reset();
+        grecaptcha.reset();
+      } catch (err) {
+        console.error('Form error:', err);
+        msgBox.style.color = 'red';
+        msgBox.textContent = err.message;
       }
-
-      alert('Thank you! Your message has been sent.');
-      e.target.reset();
-      grecaptcha.reset();
-    } catch (err) {
-      console.error('Form error:', err);
-      alert(err.message);
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
+
