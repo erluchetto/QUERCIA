@@ -52,18 +52,16 @@
     </form>
   </div>
 
-  <script>
-    document.getElementById('contact-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
+<script>
+  document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    try {
       const name    = e.target.name.value;
       const email   = e.target.email.value;
       const comment = e.target.comment.value;
       const token   = grecaptcha.getResponse();
 
-      if (!token) {
-        alert('Please complete the reCAPTCHA challenge.');
-        return;
-      }
+      if (!token) throw new Error('Please complete the reCAPTCHA.');
 
       const res = await fetch('/api/contact', {
         method: 'POST',
@@ -71,15 +69,19 @@
         body: JSON.stringify({ name, email, comment, token })
       });
 
-      if (res.ok) {
-        alert('Thank you! Your message has been sent.');
-        e.target.reset();
-        grecaptcha.reset();
-      } else {
-        const data = await res.json();
-        alert(data.error || 'An error occurred.');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Server returned ${res.status}`);
       }
-    });
-  </script>
+
+      alert('Thank you! Your message has been sent.');
+      e.target.reset();
+      grecaptcha.reset();
+    } catch (err) {
+      console.error('Form error:', err);
+      alert(err.message);
+    }
+  });
+</script>
 </body>
 </html>
