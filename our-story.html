@@ -44,7 +44,7 @@
 
     .back-link {
       display: block;
-      margin: 4rem auto 0 auto;
+      margin: 4rem auto 1rem auto;
       text-align: center;
       text-decoration: none;
       color: #000;
@@ -54,6 +54,20 @@
 
     .back-link:hover {
       text-decoration: underline;
+    }
+
+    .lang-toggle {
+      display: block;
+      margin: 1rem auto 0 auto;
+      text-align: center;
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
     }
 
     .floating-image {
@@ -68,17 +82,9 @@
       cursor: grabbing;
     }
 
-    .img-small {
-      width: 90px;
-    }
-
-    .img-medium {
-      width: 120px;
-    }
-
-    .img-large {
-      width: 160px;
-    }
+    .img-small { width: 90px; }
+    .img-medium { width: 120px; }
+    .img-large { width: 160px; }
   </style>
 </head>
 <body>
@@ -91,12 +97,13 @@
   <img src="dispositivo.png" alt="Dispositivo" class="floating-image img-medium">
   <img src="IMG_4619.JPG" alt="Satellite" class="floating-image img-large">
 
-  <p class="decorated-paragraph">
+  <p class="decorated-paragraph" id="story-paragraph">
     <img src="q articolo.png" alt="Decorative Q" class="decorative-q">
     UERCIA nasce sulla costa maremmana, dalle feste in spiaggia, dove attrezzature semplici ed allestimenti naturali lasciano spazio ad un’idea collettiva di festa e convivialità, un connubio tra persone e natura molto autentico e prezioso. Questo progetto mira ad esportare su una scala più grande tale realtà assieme a tutti i sentimenti che ne derivano, partendo dal nome dell’albero che ha ospitato le prime serate.
   </p>
 
   <a href="index.html" class="back-link">← Back to Home</a>
+  <button class="lang-toggle" id="lang-toggle">English</button>
 
   <script>
     const draggables = document.querySelectorAll('.floating-image');
@@ -166,7 +173,27 @@
       el.addEventListener('mousedown', onMouseDown);
       el.addEventListener('touchstart', onTouchStart, { passive: false });
     });
+
+    // Language toggle logic
+    const toggleBtn = document.getElementById('lang-toggle');
+    const paragraph = document.getElementById('story-paragraph');
+    const italianText = `
+      <img src="q articolo.png" alt="Decorative Q" class="decorative-q">
+      UERCIA nasce sulla costa maremmana, dalle feste in spiaggia, dove attrezzature semplici ed allestimenti naturali lasciano spazio ad un’idea collettiva di festa e convivialità, un connubio tra persone e natura molto autentico e prezioso. Questo progetto mira ad esportare su una scala più grande tale realtà assieme a tutti i sentimenti che ne derivano, partendo dal nome dell’albero che ha ospitato le prime serate.`;
+
+    const englishText = `
+      <img src="q articolo.png" alt="Decorative Q" class="decorative-q">
+      UERCIA was born on the Maremma coast, from it’s beach parties, where simple equipment and natural settings give way to a collective idea of celebration and conviviality, a truly authentic and precious union between people and nature. This project aims to export this reality, along with all the emotions that come along with it, on a larger scale, starting with the name of the tree that hosted the first magical nights.`;
+
+    let isItalian = true;
+
+    toggleBtn.addEventListener('click', () => {
+      isItalian = !isItalian;
+      paragraph.innerHTML = isItalian ? italianText : englishText;
+      toggleBtn.textContent = isItalian ? 'English' : 'Italiano';
+    });
   </script>
 
 </body>
 </html>
+
