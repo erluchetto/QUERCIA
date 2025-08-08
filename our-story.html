@@ -18,13 +18,15 @@
       padding: 0 20px;
       max-width: 700px;
       text-align: justify;
+      position: relative;
+      overflow-x: hidden;
     }
 
     .decorated-paragraph {
       position: relative;
     }
 
-    .decorated-paragraph img {
+    .decorated-paragraph img.decorative-q {
       float: left;
       max-width: 15%;
       height: auto;
@@ -33,7 +35,7 @@
     }
 
     @media (max-width: 600px) {
-      .decorated-paragraph img {
+      .decorated-paragraph img.decorative-q {
         max-width: 20%;
         margin-right: 8px;
       }
@@ -52,16 +54,84 @@
     .back-link:hover {
       text-decoration: underline;
     }
+
+    .floating-image {
+      position: absolute;
+      width: 120px;
+      cursor: grab;
+      z-index: 10;
+      touch-action: none;
+    }
+
+    .floating-image:active {
+      cursor: grabbing;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Draggable images -->
+  <img src="tronco.png" alt="Tronco" class="floating-image" style="top: 80px; left: 40px;">
+  <img src="disco rotto.png" alt="Disco rotto" class="floating-image" style="top: 250px; left: 100px;">
+  <img src="chimera.png" alt="Chimera" class="floating-image" style="top: 400px; left: 200px;">
+  <img src="loghetto fiore.png" alt="Fiore" class="floating-image" style="top: 550px; left: 150px;">
+  <img src="dispositivo.png" alt="Dispositivo" class="floating-image" style="top: 700px; left: 70px;">
+  <img src="IMG_4619.JPG" alt="Satellite" class="floating-image" style="top: 900px; left: 220px;">
+
   <p class="decorated-paragraph">
-    <img src="q articolo.png" alt="Decorative Q">
+    <img src="q articolo.png" alt="Decorative Q" class="decorative-q">
     UERCIA nasce sulla costa maremmana, dalle feste in spiaggia, dove attrezzature semplici ed allestimenti naturali lasciano spazio ad un’idea collettiva di festa e convivialità, un connubio tra persone e natura molto autentico e prezioso. Questo progetto mira ad esportare su una scala più grande tale realtà assieme a tutti i sentimenti che ne derivano, partendo dal nome dell’albero che ha ospitato le prime serate.
   </p>
 
   <a href="index.html" class="back-link">← Back to Home</a>
 
+  <script>
+    // Make all elements with class 'floating-image' draggable
+    const draggables = document.querySelectorAll('.floating-image');
+
+    draggables.forEach(el => {
+      let offsetX, offsetY;
+
+      const onMouseMove = e => {
+        el.style.left = `${e.clientX - offsetX}px`;
+        el.style.top = `${e.clientY - offsetY}px`;
+      };
+
+      const onTouchMove = e => {
+        const touch = e.touches[0];
+        el.style.left = `${touch.clientX - offsetX}px`;
+        el.style.top = `${touch.clientY - offsetY}px`;
+      };
+
+      const onMouseDown = e => {
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      };
+
+      const onTouchStart = e => {
+        const touch = e.touches[0];
+        const rect = el.getBoundingClientRect();
+        offsetX = touch.clientX - rect.left;
+        offsetY = touch.clientY - rect.top;
+        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchend', onTouchEnd);
+      };
+
+      const onMouseUp = () => {
+        document.removeEventListener('mousemove', onMouseMove);
+      };
+
+      const onTouchEnd = () => {
+        document.removeEventListener('touchmove', onTouchMove);
+      };
+
+      el.addEventListener('mousedown', onMouseDown);
+      el.addEventListener('touchstart', onTouchStart, { passive: false });
+    });
+  </script>
+
 </body>
 </html>
+
