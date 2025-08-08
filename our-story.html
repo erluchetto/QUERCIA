@@ -50,7 +50,7 @@
       background: none;
       border: none;
       font-family: 'Courier Prime', monospace;
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       font-weight: bold;
       color: #000;
       cursor: pointer;
@@ -126,20 +126,7 @@
       el.style.top = `${top}px`;
       el.style.transform = `rotate(${rotation}deg)`;
 
-      let offsetX, offsetY, isDragging = false;
-
-      const onMouseMove = e => {
-        if (!isDragging) return;
-        el.style.left = `${e.clientX - offsetX}px`;
-        el.style.top = `${e.clientY - offsetY}px`;
-      };
-
-      const onTouchMove = e => {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        el.style.left = `${touch.clientX - offsetX}px`;
-        el.style.top = `${touch.clientY - offsetY}px`;
-      };
+      let offsetX = 0, offsetY = 0, isDragging = false;
 
       const onMouseDown = e => {
         const rect = el.getBoundingClientRect();
@@ -150,24 +137,39 @@
         document.addEventListener('mouseup', onMouseUp);
       };
 
+      const onMouseMove = e => {
+        if (!isDragging) return;
+        el.style.left = `${e.clientX - offsetX}px`;
+        el.style.top = `${e.clientY - offsetY}px`;
+      };
+
+      const onMouseUp = () => {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+
       const onTouchStart = e => {
         const touch = e.touches[0];
         const rect = el.getBoundingClientRect();
         offsetX = touch.clientX - rect.left;
         offsetY = touch.clientY - rect.top;
         isDragging = true;
-        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchmove', onTouchMove, { passive: false });
         document.addEventListener('touchend', onTouchEnd);
       };
 
-      const onMouseUp = () => {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMouseMove);
+      const onTouchMove = e => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        el.style.left = `${touch.clientX - offsetX}px`;
+        el.style.top = `${touch.clientY - offsetY}px`;
       };
 
       const onTouchEnd = () => {
         isDragging = false;
         document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
       };
 
       el.addEventListener('mousedown', onMouseDown);
