@@ -75,7 +75,8 @@
       cursor: grab;
       z-index: 10;
       touch-action: none;
-      transition: transform 0.3s ease;
+      will-change: transform;
+      transition: transform 0.1s ease-out;
     }
 
     .floating-image:active {
@@ -118,30 +119,39 @@
       const minTop = 120;
       const maxTop = 350;
 
-      const left = Math.floor(Math.random() * (maxLeft - minLeft)) + minLeft;
-      const top = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
+      const x = Math.floor(Math.random() * (maxLeft - minLeft)) + minLeft;
+      const y = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
       const rotation = Math.floor(Math.random() * 40 - 20);
 
-      el.style.left = `${left}px`;
-      el.style.top = `${top}px`;
-      el.style.transform = `rotate(${rotation}deg)`;
+      el.dataset.x = x;
+      el.dataset.y = y;
 
-      let offsetX = 0, offsetY = 0, isDragging = false;
+      el.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+
+      let isDragging = false;
+      let startX = 0, startY = 0;
+      let currentX = x, currentY = y;
+
+      const onMove = (clientX, clientY) => {
+        if (!isDragging) return;
+        const dx = clientX - startX;
+        const dy = clientY - startY;
+        el.dataset.x = currentX + dx;
+        el.dataset.y = currentY + dy;
+        el.style.transform = `translate(${currentX + dx}px, ${currentY + dy}px) rotate(${rotation}deg)`;
+      };
 
       const onMouseDown = e => {
-        const rect = el.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
         isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        currentX = parseFloat(el.dataset.x);
+        currentY = parseFloat(el.dataset.y);
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       };
 
-      const onMouseMove = e => {
-        if (!isDragging) return;
-        el.style.left = `${e.clientX - offsetX}px`;
-        el.style.top = `${e.clientY - offsetY}px`;
-      };
+      const onMouseMove = e => onMove(e.clientX, e.clientY);
 
       const onMouseUp = () => {
         isDragging = false;
@@ -150,20 +160,20 @@
       };
 
       const onTouchStart = e => {
-        const touch = e.touches[0];
-        const rect = el.getBoundingClientRect();
-        offsetX = touch.clientX - rect.left;
-        offsetY = touch.clientY - rect.top;
         isDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        currentX = parseFloat(el.dataset.x);
+        currentY = parseFloat(el.dataset.y);
         document.addEventListener('touchmove', onTouchMove, { passive: false });
         document.addEventListener('touchend', onTouchEnd);
       };
 
       const onTouchMove = e => {
-        if (!isDragging) return;
+        e.preventDefault();
         const touch = e.touches[0];
-        el.style.left = `${touch.clientX - offsetX}px`;
-        el.style.top = `${touch.clientY - offsetY}px`;
+        onMove(touch.clientX, touch.clientY);
       };
 
       const onTouchEnd = () => {
@@ -198,3 +208,4 @@
 
 </body>
 </html>
+
