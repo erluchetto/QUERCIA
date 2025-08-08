@@ -25,6 +25,8 @@
 
     .decorated-paragraph {
       position: relative;
+      transition: all 0.3s ease-in-out;
+      min-height: 200px;
     }
 
     .decorated-paragraph img.decorative-q {
@@ -62,7 +64,7 @@
       text-align: center;
       text-decoration: none;
       color: #000;
-      font-size: 0.95rem;
+      font-size: 0.75rem;
       font-weight: bold;
     }
 
@@ -201,11 +203,14 @@
 
     toggleBtn.addEventListener('click', () => {
       isItalian = !isItalian;
-      paragraph.innerHTML = isItalian ? italianText : englishText;
-      toggleBtn.textContent = isItalian ? 'English' : 'Italiano';
+      paragraph.style.opacity = 0;
+      setTimeout(() => {
+        paragraph.innerHTML = isItalian ? italianText : englishText;
+        toggleBtn.textContent = isItalian ? 'English' : 'Italiano';
+        paragraph.style.opacity = 1;
+      }, 150);
     });
   </script>
 
 </body>
 </html>
-
