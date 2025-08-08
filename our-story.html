@@ -58,7 +58,6 @@
 
     .floating-image {
       position: absolute;
-      width: 120px;
       cursor: grab;
       z-index: 10;
       touch-action: none;
@@ -68,17 +67,29 @@
     .floating-image:active {
       cursor: grabbing;
     }
+
+    .img-small {
+      width: 90px;
+    }
+
+    .img-medium {
+      width: 120px;
+    }
+
+    .img-large {
+      width: 160px;
+    }
   </style>
 </head>
 <body>
 
   <!-- Draggable images -->
-  <img src="tronco.png" alt="Tronco" class="floating-image">
-  <img src="disco rotto.png" alt="Disco rotto" class="floating-image">
-  <img src="chimera.png" alt="Chimera" class="floating-image">
-  <img src="loghetto fiore.png" alt="Fiore" class="floating-image">
-  <img src="dispositivo.png" alt="Dispositivo" class="floating-image">
-  <img src="IMG_4619.JPG" alt="Satellite" class="floating-image">
+  <img src="tronco.png" alt="Tronco" class="floating-image img-medium">
+  <img src="disco rotto.png" alt="Disco rotto" class="floating-image img-medium">
+  <img src="chimera.png" alt="Chimera" class="floating-image img-large">
+  <img src="loghetto fiore.png" alt="Fiore" class="floating-image img-small">
+  <img src="dispositivo.png" alt="Dispositivo" class="floating-image img-medium">
+  <img src="IMG_4619.JPG" alt="Satellite" class="floating-image img-large">
 
   <p class="decorated-paragraph">
     <img src="q articolo.png" alt="Decorative Q" class="decorative-q">
@@ -91,26 +102,23 @@
     const draggables = document.querySelectorAll('.floating-image');
 
     draggables.forEach(el => {
-      // Tighter bounds for placement within the text area
       const padding = 20;
       const container = document.body;
       const containerRect = container.getBoundingClientRect();
 
-      const maxLeft = containerRect.width - 140; // 120px img + margin
+      const maxLeft = containerRect.width - el.offsetWidth - padding;
       const minLeft = padding;
-
-      const minTop = 100;
-      const maxTop = 600; // Roughly within the paragraph block height
+      const minTop = 120;
+      const maxTop = 350;
 
       const left = Math.floor(Math.random() * (maxLeft - minLeft)) + minLeft;
       const top = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
-      const rotation = Math.floor(Math.random() * 40 - 20); // -20deg to +20deg
+      const rotation = Math.floor(Math.random() * 40 - 20);
 
       el.style.left = `${left}px`;
       el.style.top = `${top}px`;
       el.style.transform = `rotate(${rotation}deg)`;
 
-      // DRAG FUNCTIONALITY
       let offsetX, offsetY, isDragging = false;
 
       const onMouseMove = e => {
@@ -162,5 +170,3 @@
 
 </body>
 </html>
-
-
