@@ -30,7 +30,7 @@
       font-weight: 700;
       text-transform: uppercase;
       font-family: 'Courier Prime', monospace;
-      color: #000;
+      color: #000; /* default black */
     }
     button:hover { background: #000; color: #fff; transition: background-color 0.3s, color 0.3s; }
 
@@ -38,7 +38,7 @@
     .captcha-wrapper {
       display: flex;
       justify-content: center;
-      margin-bottom: 2rem;
+      margin-bottom: 2rem; /* space from button */
     }
     .captcha-wrapper .g-recaptcha {
       transform: scale(0.85);
@@ -70,29 +70,36 @@
       <label for="comment">Comment</label>
       <textarea id="comment" name="comment" required></textarea>
 
-      <!-- reCAPTCHA widget centered and scaled -->
+      <!-- reCAPTCHA widget -->
       <div class="captcha-wrapper">
         <div class="g-recaptcha" data-sitekey="6LeKzpwrAAAAAJHNB45KPERUBjj89xypXdQWDw5r"></div>
       </div>
 
+      <!-- Changed to type="button" and given an ID -->
       <button type="button" id="submit-btn">Submit</button>
       <div id="form-message" class="form-message"></div>
     </form>
   </div>
 
   <script>
+    const form      = document.getElementById('contact-form');
     const submitBtn = document.getElementById('submit-btn');
-    const msgBox = document.getElementById('form-message');
-    submitBtn.addEventListener('click', async function() {
+    const msgBox    = document.getElementById('form-message');
+
+    submitBtn.addEventListener('click', async () => {
       msgBox.textContent = '';
       try {
-        const name    = document.getElementById('name').value;
-        const email   = document.getElementById('email').value;
-        const comment = document.getElementById('comment').value;
+        const name    = form.name.value.trim();
+        const email   = form.email.value.trim();
+        const comment = form.comment.value.trim();
         const token   = grecaptcha.getResponse();
 
-        if (!name || !email || !comment) throw new Error('Please fill in all fields.');
-        if (!token) throw new Error('Please complete the reCAPTCHA.');
+        if (!name || !email || !comment) {
+          throw new Error('Please fill out all fields.');
+        }
+        if (!token) {
+          throw new Error('Please complete the reCAPTCHA.');
+        }
 
         const res = await fetch('/api/contact', {
           method: 'POST',
@@ -107,8 +114,7 @@
 
         msgBox.style.color = 'green';
         msgBox.textContent = 'Thank you! Your message has been sent.';
-        // Reset form and captcha
-        document.getElementById('contact-form').reset();
+        form.reset();
         grecaptcha.reset();
       } catch (err) {
         console.error('Form error:', err);
@@ -119,8 +125,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
