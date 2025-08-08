@@ -30,7 +30,7 @@
       font-weight: 700;
       text-transform: uppercase;
       font-family: 'Courier Prime', monospace;
-      color: #000; /* ensure default black text */
+      color: #000;
     }
     button:hover { background: #000; color: #fff; transition: background-color 0.3s, color 0.3s; }
 
@@ -38,7 +38,7 @@
     .captcha-wrapper {
       display: flex;
       justify-content: center;
-      margin-bottom: 2rem; /* more space from submit button */
+      margin-bottom: 2rem;
     }
     .captcha-wrapper .g-recaptcha {
       transform: scale(0.85);
@@ -60,7 +60,7 @@
   <div class="form-container">
     <h1>Contact Us</h1>
     <p class="social">Instagram: <a href="https://www.instagram.com/querciamusic" target="_blank">@querciamusic</a></p>
-    <form id="contact-form" method="POST" action="/api/contact">
+    <form id="contact-form">
       <label for="name">Name</label>
       <input type="text" id="name" name="name" required>
 
@@ -75,23 +75,23 @@
         <div class="g-recaptcha" data-sitekey="6LeKzpwrAAAAAJHNB45KPERUBjj89xypXdQWDw5r"></div>
       </div>
 
-      <button type="submit">Submit</button>
+      <button type="button" id="submit-btn">Submit</button>
       <div id="form-message" class="form-message"></div>
     </form>
   </div>
 
   <script>
-    const form = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('submit-btn');
     const msgBox = document.getElementById('form-message');
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
+    submitBtn.addEventListener('click', async function() {
       msgBox.textContent = '';
       try {
-        const name    = e.target.name.value;
-        const email   = e.target.email.value;
-        const comment = e.target.comment.value;
+        const name    = document.getElementById('name').value;
+        const email   = document.getElementById('email').value;
+        const comment = document.getElementById('comment').value;
         const token   = grecaptcha.getResponse();
 
+        if (!name || !email || !comment) throw new Error('Please fill in all fields.');
         if (!token) throw new Error('Please complete the reCAPTCHA.');
 
         const res = await fetch('/api/contact', {
@@ -107,7 +107,8 @@
 
         msgBox.style.color = 'green';
         msgBox.textContent = 'Thank you! Your message has been sent.';
-        e.target.reset();
+        // Reset form and captcha
+        document.getElementById('contact-form').reset();
         grecaptcha.reset();
       } catch (err) {
         console.error('Form error:', err);
@@ -118,6 +119,7 @@
   </script>
 </body>
 </html>
+
 
 
 
