@@ -91,11 +91,18 @@
     const draggables = document.querySelectorAll('.floating-image');
 
     draggables.forEach(el => {
-      // RANDOM PLACEMENT
-      const maxLeft = 500;
-      const minTop = 50;
-      const maxTop = 900;
-      const left = Math.floor(Math.random() * maxLeft);
+      // Tighter bounds for placement within the text area
+      const padding = 20;
+      const container = document.body;
+      const containerRect = container.getBoundingClientRect();
+
+      const maxLeft = containerRect.width - 140; // 120px img + margin
+      const minLeft = padding;
+
+      const minTop = 100;
+      const maxTop = 600; // Roughly within the paragraph block height
+
+      const left = Math.floor(Math.random() * (maxLeft - minLeft)) + minLeft;
       const top = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
       const rotation = Math.floor(Math.random() * 40 - 20); // -20deg to +20deg
 
@@ -104,22 +111,26 @@
       el.style.transform = `rotate(${rotation}deg)`;
 
       // DRAG FUNCTIONALITY
-      let offsetX, offsetY;
+      let offsetX, offsetY, isDragging = false;
 
       const onMouseMove = e => {
+        if (!isDragging) return;
         el.style.left = `${e.clientX - offsetX}px`;
         el.style.top = `${e.clientY - offsetY}px`;
       };
 
       const onTouchMove = e => {
+        if (!isDragging) return;
         const touch = e.touches[0];
         el.style.left = `${touch.clientX - offsetX}px`;
         el.style.top = `${touch.clientY - offsetY}px`;
       };
 
       const onMouseDown = e => {
-        offsetX = e.offsetX;
-        offsetY = e.offsetY;
+        const rect = el.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        isDragging = true;
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       };
@@ -129,15 +140,18 @@
         const rect = el.getBoundingClientRect();
         offsetX = touch.clientX - rect.left;
         offsetY = touch.clientY - rect.top;
+        isDragging = true;
         document.addEventListener('touchmove', onTouchMove);
         document.addEventListener('touchend', onTouchEnd);
       };
 
       const onMouseUp = () => {
+        isDragging = false;
         document.removeEventListener('mousemove', onMouseMove);
       };
 
       const onTouchEnd = () => {
+        isDragging = false;
         document.removeEventListener('touchmove', onTouchMove);
       };
 
@@ -148,4 +162,5 @@
 
 </body>
 </html>
+
 
