@@ -5,6 +5,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact | QUERCIA</title>
+
+  <!-- Import Courier Prime font -->
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; background: #fff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
@@ -49,17 +53,22 @@
       text-align: center;
     }
 
+    /* Identical Back to Home button style as Our Story page */
     .back-link {
       display: block;
-      margin: 2rem auto 0 auto;
+      margin-top: 3rem;
       text-align: center;
       text-decoration: none;
       color: #000;
       font-size: 0.75rem;
+      font-family: 'Courier Prime', monospace;
       font-weight: bold;
     }
-    .back-link:hover { text-decoration: underline; }
+    .back-link:hover {
+      text-decoration: underline;
+    }
   </style>
+
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
@@ -82,6 +91,8 @@
 
       <button type="button" id="submit-btn">Submit</button>
       <div id="form-message" class="form-message"></div>
+
+      <!-- Back to Home button -->
       <a href="index.html" class="back-link">← Back to Home</a>
     </form>
   </div>
@@ -130,3 +141,4 @@
   </script>
 </body>
 </html>
+
