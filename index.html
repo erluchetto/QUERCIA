@@ -115,20 +115,13 @@
       text-align: center;
       font-family: 'Courier Prime', monospace;
       z-index: 500;
+      min-height: 130px; /* reduced height since no button */
+      display: flex;            /* keep typography identical */
+      flex-direction: column;
+      justify-content: center;  /* vertical centering */
+      align-items: center;      /* horizontal centering */
     }
     .event-box p { margin: 0.25rem 0; font-size: 1rem; }
-    .event-button {
-      display: inline-block;
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      border: 1px solid #000;
-      text-decoration: none;
-      text-transform: uppercase;
-      font-weight: 700;
-      font-family: 'Courier Prime', monospace;
-      color: #000;
-    }
-    .event-button:hover { background: #000; color: #fff; }
 
     /* Footer subtitle fixed at bottom */
     .subtitle {
@@ -143,8 +136,8 @@
       line-height: 1.4;
       z-index: 100;
     }
-    .event-box { min-height: 180px; }
-</style>
+    .event-box { min-height: 130px; } /* ensure the final min-height */
+  </style>
 </head>
 <body>
   <div class="logo-container" id="logo-container">
@@ -159,10 +152,12 @@
     </ul>
   </div>
 
+  <!-- UPDATED EVENT BOX (only this changed) -->
   <div class="event-box">
-    <p class="event-date">14.08.2025</p>
-    <p class="event-location">KUTA, PORTO ROTONDO<br>(w/ Bazaar84th)</p>
-    <a href="https://xceed.me/it/olbia/event/1408-bazaar84th-at-kuta-porto-rotondo--197571/channel--quercia" target="_blank" class="event-button">Tickets</a>
+    <p class="event-date">15.08.2025</p>
+    <div style="height: 10px;"></div>
+    <p class="event-location">WHERE IT ALL STARTED</p>
+    <!-- ticket button removed -->
   </div>
 
   <p class="subtitle">We care about good music, not fancy websites</p>
