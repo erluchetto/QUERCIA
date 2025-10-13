@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" href="favicon-sito.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Souvenir Shop | QUERCIA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
+
+    body {
+      background-color: #fff;
+      color: #000;
+      font-family: 'Courier Prime', monospace;
+      font-size: 16px;
+      line-height: 1.6;
+      letter-spacing: 0.02em;
+      margin: 20px auto;
+      padding: 0 10px;
+      max-width: 500px;
+      text-align: justify;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    h1, .title {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1 { text-align: center; font-size: 1.2rem; margin-bottom: 0.8rem; }
+    p.subtitle { text-align: center; font-size: 0.8rem; margin-bottom: 1.5rem; }
+
+    .archive-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+    .archive-item {
+      border: 1px solid #000; background: #f5f5f5; width: 90%; margin: 0 auto; text-align: center;
+    }
+
+    .media { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: transparent; }
+    .media img { position: absolute; inset: 0; margin: auto; max-width: 100%; max-height: 100%; width: auto; height: auto; display: block; object-fit: contain; }
+
+    .slider .slide { opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+    .slider .slide.is-active { opacity: 1; pointer-events: auto; }
+
+    .next {
+      position: absolute; right: 6px; bottom: 6px; z-index: 2;
+      border: 1px solid #000; background: #fff; color: #000; cursor: pointer;
+      padding: .35rem .5rem; font-family: 'Courier Prime', monospace; font-size: .9rem; line-height: 1;
+      min-width: 36px; min-height: 36px; display: grid; place-items: center; opacity: .9;
+    }
+    .next:hover { background: #000; color: #fff; }
+
+    .info { padding: 0.5rem; border-top: 1px solid #000; text-align: left; }
+    .title { font-size: 0.9rem; margin-bottom: 0.1rem; }
+    .details { font-size: 0.8rem; opacity: 0.9; }
+
+    .back-link { display: block; margin-top: 2rem; text-align: center; text-decoration: none; color: #000; font-size: 0.7rem; font-weight: bold; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>SOUVENIR SHOP</h1>
+  <p class="subtitle">ARCHIVE — previously released stuff</p>
+
+  <div class="archive-grid">
+    <div class="archive-item">
+      <div class="media">
+        <img src="tee 006.png" alt="Tee 006 — Boring" loading="lazy" decoding="async">
+      </div>
+      <div class="info">
+        <div class="title">tee 006 — "Boring"</div>
+        <div class="details">June 2025 · White/Forest green</div>
+      </div>
+    </div>
+
+    <div class="archive-item">
+      <div class="media">
+        <img src="tee 004.png" alt="Tee 004 — Qulture" loading="lazy" decoding="async">
+      </div>
+      <div class="info">
+        <div class="title">tee 004 — "Qulture"</div>
+        <div class="details">November 2024 · White/Black</div>
+      </div>
+    </div>
+
+    <div class="archive-item">
+      <div class="media">
+        <img src="tee 003.png" alt="Tee 003 — LNL" loading="lazy" decoding="async">
+      </div>
+      <div class="info">
+        <div class="title">tee 003 — "LNL"</div>
+        <div class="details">October 2024 · Yankees Blue/Aqua</div>
+      </div>
+    </div>
+
+    <div class="archive-item">
+      <div class="media slider" data-current="0">
+        <img class="slide is-active" src="tee 002 Front.png" alt="Tee 002 — Quore (Front)" loading="lazy" decoding="async">
+        <img class="slide" src="tee 002 Back.png" alt="Tee 002 — Quore (Back)" loading="lazy" decoding="async">
+        <button class="next" aria-label="Next photo" title="Next photo">→</button>
+      </div>
+      <div class="info">
+        <div class="title">tee 002 — "Quore"</div>
+        <div class="details">July 2024 · White/Fire Red</div>
+      </div>
+    </div>
+
+    <div class="archive-item">
+      <div class="media slider" data-current="0">
+        <img class="slide is-active" src="Radici (fronte).png" alt="Tee 001 — Radici (Fronte)" loading="eager" decoding="async">
+        <img class="slide" src="Radici (retro).png" alt="Tee 001 — Radici (Retro)" loading="lazy" decoding="async">
+        <button class="next" aria-label="Next photo" title="Next photo">→</button>
+      </div>
+      <div class="info">
+        <div class="title">tee 001 — "Radici"</div>
+        <div class="details">May 2024 · Black/White</div>
+      </div>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link">← Back to Home</a>
+
+  <script>
+    document.querySelectorAll('.slider').forEach(slider => {
+      const slides = slider.querySelectorAll('.slide');
+      const btn = slider.querySelector('.next');
+      let i = 0;
+      const show = idx => { slides.forEach((s, k) => s.classList.toggle('is-active', k === idx)); };
+      btn.addEventListener('click', () => { i = (i + 1) % slides.length; show(i); });
+      show(i);
+    });
+  </script>
+</body>
+</html>
