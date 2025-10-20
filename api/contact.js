@@ -1,4 +1,5 @@
-// api/contact.js  — CommonJS handler on Vercel with AWS SES (ESM via dynamic import)
+// api/contact.js — CommonJS handler using AWS SES with your SES_FROM_ADDRESS
+// Uses SES_TO_ADDRESS if set; otherwise sends to SES_FROM_ADDRESS.
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -13,7 +14,7 @@ module.exports = async (req, res) => {
       return;
     }
 
-    // 1) Verify Google reCAPTCHA (v2 or v3)
+    // 1) Verify Google reCAPTCHA
     const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -24,17 +25,25 @@ module.exports = async (req, res) => {
     });
     const verifyData = await verifyRes.json();
 
-    // For v3, also check score; for v2, score is undefined (that’s fine).
+    // For v3, check score; for v2, score is undefined (that’s okay).
     if (!verifyData.success || (typeof verifyData.score === 'number' && verifyData.score < 0.5)) {
       res.status(400).json({ error: 'reCAPTCHA validation failed' });
       return;
     }
 
-    // 2) Send the email via AWS SES (ESM-only package loaded via dynamic import)
+    // 2) Send via AWS SES (ESM-only SDK via dynamic import in CommonJS)
     const { SESClient, SendEmailCommand } = await import('@aws-sdk/client-ses');
 
-    const region = process.env.AWS_REGION || 'eu-west-1'; // set yours in Vercel
+    const region = process.env.AWS_REGION || 'eu-west-1';
     const client = new SESClient({ region });
+
+    const fromAddress = process.env.SES_FROM_ADDRESS; // must be SES-verified
+    const toAddress = process.env.SES_TO_ADDRESS || fromAddress; // Option A: fallback to same address
+
+    if (!fromAddress) {
+      res.status(500).json({ error: 'Missing SES_FROM_ADDRESS env var' });
+      return;
+    }
 
     const plainText = `Name: ${name}\nEmail: ${email}\n\n${message}`;
     const htmlBody = `<p><b>Name:</b> ${escapeHtml(name)}</p>
@@ -42,7 +51,7 @@ module.exports = async (req, res) => {
                       <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`;
 
     const params = {
-      Destination: { ToAddresses: [process.env.CONTACT_TO] },
+      Destination: { ToAddresses: [toAddress] },
       Message: {
         Subject: { Data: `New contact from ${name}` },
         Body: {
@@ -50,12 +59,11 @@ module.exports = async (req, res) => {
           Html: { Data: htmlBody }
         }
       },
-      Source: process.env.CONTACT_FROM, // must be a verified SES identity
+      Source: fromAddress,
       ReplyToAddresses: [email]
     };
 
     await client.send(new SendEmailCommand(params));
-
     res.status(200).json({ ok: true });
   } catch (err) {
     console.error(err);
@@ -63,7 +71,6 @@ module.exports = async (req, res) => {
   }
 };
 
-// Simple HTML escape to avoid breaking your email markup
 function escapeHtml(str = '') {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -72,4 +79,3 @@ function escapeHtml(str = '') {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-
