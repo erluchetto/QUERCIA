@@ -58,6 +58,16 @@
       height: 166px;
     }
 
+    /* Fallback link styling */
+    .fallback-link, .fallback-link:visited {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: #000;
+      word-break: break-word;
+    }
+    .fallback-link:hover { text-decoration: underline; }
+
     .back-link {
       display: block;
       margin-top: 2rem;
@@ -74,8 +84,37 @@
   <h1>Q RADIO</h1>
   <p class="subtitle">ARCHIVE — recorded DJ sets by our artists</p>
 
-  <!-- Vertical list of embedded SoundCloud players -->
+  <!-- Vertical list of embedded SoundCloud players with visible fallback links -->
   <div class="radio-column">
     <div class="radio-item">
-      <iframe scrolling="no" frameborder="no" allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/take-001&color=%23000000&auto_play=false&hide_related=false&show_com_
+      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/take-001&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+      </iframe>
+      <a class="fallback-link" href="https://soundcloud.com/user-818297961/take-001" target="_blank" rel="noopener">Open on SoundCloud — TAKE 001</a>
+    </div>
+
+    <div class="radio-item">
+      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/take-002&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+      </iframe>
+      <a class="fallback-link" href="https://soundcloud.com/user-818297961/take-002" target="_blank" rel="noopener">Open on SoundCloud — TAKE 002</a>
+    </div>
+
+    <div class="radio-item">
+      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/ale_bi/opening-live-set-0106-the-sanctuary-eco-retreat-rome&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+      </iframe>
+      <a class="fallback-link" href="https://soundcloud.com/ale_bi/opening-live-set-0106-the-sanctuary-eco-retreat-rome" target="_blank" rel="noopener">Open on SoundCloud — Opening Live Set 01/06</a>
+    </div>
+
+    <div class="radio-item">
+      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/ale_bi/tech&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+      </iframe>
+      <a class="fallback-link" href="https://soundcloud.com/ale_bi/tech" target="_blank" rel="noopener">Open on SoundCloud — Tech</a>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link">← Back to Home</a>
+</body>
+</html>
