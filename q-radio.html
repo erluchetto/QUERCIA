@@ -34,22 +34,19 @@
     h1 { text-align: center; font-size: 1.2rem; margin-bottom: 0.8rem; }
     p.subtitle { text-align: center; font-size: 0.8rem; margin-bottom: 1.2rem; }
 
-    /* Horizontal scrolling row */
-    .radio-row {
+    /* Vertical stacked layout */
+    .radio-column {
       display: flex;
+      flex-direction: column;
       gap: 15px;
-      overflow-x: auto;
-      padding: 6px 0 10px;
-      scrollbar-width: thin;
-      justify-content: flex-start;
+      align-items: center;
     }
+
     .radio-item {
-      flex: 0 0 auto;
+      width: 100%;
       border: 1px solid #000;
       background: #f5f5f5;
       padding: 10px;
-      min-width: 320px;
-      max-width: 400px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -77,23 +74,23 @@
   <h1>Q RADIO</h1>
   <p class="subtitle">ARCHIVE — recorded DJ sets by our artists</p>
 
-  <!-- Horizontal list of embedded SoundCloud players -->
-  <div class="radio-row">
+  <!-- Vertical list of embedded SoundCloud players -->
+  <div class="radio-column">
     <div class="radio-item">
       <iframe scrolling="no" frameborder="no" allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//on.soundcloud.com/KZGJer1bSNk43b4rbr&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/take-001&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
       </iframe>
     </div>
 
     <div class="radio-item">
       <iframe scrolling="no" frameborder="no" allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//on.soundcloud.com/RItsoD1LJjPwaMQt6O&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/take-002&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
       </iframe>
     </div>
 
     <div class="radio-item">
       <iframe scrolling="no" frameborder="no" allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//on.soundcloud.com/KXuEDFP8qNqHxHNB3w&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/ale_bi/opening-live-set-0106-the-sanctuary-eco-retreat-rome&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
       </iframe>
     </div>
   </div>
