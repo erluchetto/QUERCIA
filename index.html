@@ -136,6 +136,7 @@
   </style>
 </head>
 <body>
+
   <div class="logo-container" id="logo-container">
     <img src="logo.png" alt="QUERCIA Logo" class="logo" id="logo">
   </div>
@@ -152,22 +153,25 @@
 
   <!-- EVENT BOX -->
   <div class="event-box">
-    <p class="event-date">XX.XX.2026</p>
-    <p class="event-location">TBA</p>
+    <p class="event-date">07.03.2026</p>
+    <p class="event-location">MILAN</p>
     <div style="height: 15px;"></div>
-    <span
+    <a
+      href="https://xceed.me/en/milano/event/quercia-apophis/221109/channel/quercia-music-1"
+      target="_blank"
       style="
         display: inline-block;
         padding: 0.5rem 1rem;
         border: 1px solid #000;
         background: #000;
         color: #fff;
+        text-decoration: none;
         font-family: 'Courier Prime', monospace;
         font-size: 0.9rem;
         font-weight: bold;
-        cursor: default;
+        cursor: pointer;
       "
-    >SOON</span>
+    >RVSP</a>
   </div>
 
   <div style="height: 15px;"></div>
@@ -177,6 +181,7 @@
   <script>
     const container = document.getElementById('logo-container');
     let isDragging=false,startX=0,startY=0,origX=0,origY=0;
+
     container.addEventListener('pointerdown',e=>{
       e.preventDefault();
       isDragging=true;
@@ -188,6 +193,7 @@
       origY=r.top+r.height/2;
       container.style.cursor='grabbing';
     });
+
     container.addEventListener('pointermove',e=>{
       if(!isDragging)return;
       const dx=e.clientX-startX,dy=e.clientY-startY;
@@ -195,6 +201,7 @@
       container.style.top=origY+dy+'px';
       container.style.transform='translate(-50%,-50%)';
     });
+
     container.addEventListener('pointerup',e=>{
       isDragging=false;
       container.releasePointerCapture(e.pointerId);
@@ -203,16 +210,19 @@
 
     const menuToggle=document.getElementById('menu-toggle');
     const dropdown=document.getElementById('menu-dropdown');
+
     menuToggle.addEventListener('click',e=>{
       e.stopPropagation();
       const open=dropdown.style.display==='block';
       dropdown.style.display=open?'none':'block';
       menuToggle.classList.toggle('open',!open);
     });
+
     document.addEventListener('click',()=>{
       dropdown.style.display='none';
       menuToggle.classList.remove('open');
     });
   </script>
+
 </body>
 </html>
