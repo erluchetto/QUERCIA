@@ -223,27 +223,35 @@
       menuToggle.classList.remove('open');
     });
     
-    // ===== EVENT CONFIG =====
+// ===== EVENT CONFIG =====
 const EVENT = {
-  date: "20.03.2026",
-  location: "BALAGAN",
-  buttonText: "TICKETS",
-  link: "https://link.dice.fm/fbd75d3fcd97"
+  date: "XX.XX.2026",
+  location: "TBA",
+  buttonText: "SOON",
+  link: ""
 };
 
-// ===== APPLY TO PAGE =====
 document.getElementById("event-date").textContent = EVENT.date;
 document.getElementById("event-location").textContent = EVENT.location;
 
 const btn = document.getElementById("event-button");
 btn.textContent = EVENT.buttonText;
 
-// If no link → disable button (for "SOON" cases)
-if (!EVENT.link) {
+// ===== BUTTON BEHAVIOR =====
+if (!EVENT.link || EVENT.buttonText === "SOON") {
+  // Disabled state
   btn.removeAttribute("href");
   btn.style.cursor = "default";
+  btn.style.background = "#ccc";
+  btn.style.color = "#666";
+  btn.style.border = "1px solid #999";
 } else {
+  // Active state
   btn.href = EVENT.link;
+  btn.style.cursor = "pointer";
+  btn.style.background = "#000";
+  btn.style.color = "#fff";
+  btn.style.border = "1px solid #000";
 }
   </script>
 
