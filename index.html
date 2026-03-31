@@ -151,28 +151,28 @@
     </ul>
   </div>
 
-  <!-- EVENT BOX -->
-  <div class="event-box">
-    <p class="event-date">20.03.2026</p>
-    <p class="event-location">BALAGAN</p>
-    <div style="height: 15px;"></div>
-    <a
-      href="https://link.dice.fm/fbd75d3fcd97"
-      target="_blank"
-      style="
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        border: 1px solid #000;
-        background: #000;
-        color: #fff;
-        text-decoration: none;
-        font-family: 'Courier Prime', monospace;
-        font-size: 0.9rem;
-        font-weight: bold;
-        cursor: pointer;
-      "
-    >TICKETS</a>
-  </div>
+<!-- EVENT BOX -->
+<div class="event-box">
+  <p class="event-date" id="event-date"></p>
+  <p class="event-location" id="event-location"></p>
+  <div style="height: 15px;"></div>
+  <a
+    id="event-button"
+    target="_blank"
+    style="
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border: 1px solid #000;
+      background: #000;
+      color: #fff;
+      text-decoration: none;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+    "
+  ></a>
+</div>
 
   <div style="height: 15px;"></div>
 
@@ -222,6 +222,29 @@
       dropdown.style.display='none';
       menuToggle.classList.remove('open');
     });
+    
+    // ===== EVENT CONFIG =====
+const EVENT = {
+  date: "20.03.2026",
+  location: "BALAGAN",
+  buttonText: "TICKETS",
+  link: "https://link.dice.fm/fbd75d3fcd97"
+};
+
+// ===== APPLY TO PAGE =====
+document.getElementById("event-date").textContent = EVENT.date;
+document.getElementById("event-location").textContent = EVENT.location;
+
+const btn = document.getElementById("event-button");
+btn.textContent = EVENT.buttonText;
+
+// If no link → disable button (for "SOON" cases)
+if (!EVENT.link) {
+  btn.removeAttribute("href");
+  btn.style.cursor = "default";
+} else {
+  btn.href = EVENT.link;
+}
   </script>
 
 </body>
