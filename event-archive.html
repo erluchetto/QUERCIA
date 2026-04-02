@@ -5,177 +5,457 @@
   <link rel="icon" type="image/png" href="favicon-sito.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Q RADIO | QUERCIA</title>
+  <title>EVENT ARCHIVE | QUERCIA</title>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
     body {
-      background-color: #fff;
-      color: #000;
       font-family: 'Courier Prime', monospace;
-      font-size: 16px;
-      line-height: 1.6;
-      letter-spacing: 0.02em;
-      margin: 20px auto;
-      padding: 0 10px;
-      max-width: 500px;
-      text-align: justify;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    h1, .title {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    h1 { text-align: center; font-size: 1.2rem; margin-bottom: 0.8rem; }
-    p.subtitle { text-align: center; font-size: 0.8rem; margin-bottom: 1.2rem; }
-
-    .radio-column {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .radio-item {
-      width: 100%;
-      border: 1px solid #000;
-      background: #f5f5f5;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    iframe {
-      border: none;
-      width: 100%;
-      height: 166px;
-    }
-
-    .fallback-link, .fallback-link:visited {
-      margin-top: 8px;
-      font-size: 0.85rem;
-      text-decoration: none;
+      background: #fff;
+      padding: 30px 14px 60px;
+      max-width: 620px;
+      margin: auto;
       color: #000;
-      word-break: break-word;
     }
-    .fallback-link:hover { text-decoration: underline; }
+
+    h1 {
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.6;
+      margin-bottom: 2rem;
+    }
+
+    .archive-column {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .event-card {
+      background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: 0.4s ease;
+    }
+
+    .event-card.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .event-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .event-date {
+      background: #fff;
+      color: #000;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: 1px solid #fff;
+      transition: 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .event-date:hover {
+      background: #000;
+      color: #fff;
+      border: 1px solid #fff;
+      transform: translateY(-1px);
+    }
+
+    .event-place {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: right;
+      line-height: 1.2;
+      color: #fff;
+    }
+
+    .event-city {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-window {
+      position: relative;
+      width: min(92vw, 520px);
+      max-height: 88vh;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.22);
+      transform: translateY(18px) scale(0.96);
+      transition: transform 0.32s ease;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      touch-action: none;
+    }
+
+    .modal.open .modal-window {
+      transform: translateY(0) scale(1);
+    }
+
+    .window-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: rgba(255,255,255,0.65);
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    .window-bar.dragging {
+      cursor: grabbing;
+    }
+
+    .window-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      display: inline-block;
+      cursor: default;
+      flex-shrink: 0;
+    }
+
+    .window-dot.red {
+      background: #ff5f57;
+      cursor: pointer;
+    }
+
+    .window-dot.yellow {
+      background: #febc2e;
+    }
+
+    .window-dot.green {
+      background: #28c840;
+    }
+
+    .window-title {
+      margin-left: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      opacity: 0.75;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .modal-content {
+      padding: 16px;
+    }
+
+    .modal-meta {
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .modal-event-date {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .modal-event-place {
+      font-size: 0.8rem;
+      opacity: 0.65;
+    }
+
+    .flyer-frame {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: white;
+      min-height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flyer-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 65vh;
+      object-fit: contain;
+    }
+
+    .flyer-placeholder {
+      padding: 40px 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.5;
+      line-height: 1.5;
+    }
 
     .back-link {
       display: block;
-      margin-top: 2rem;
       text-align: center;
-      text-decoration: none;
-      color: #000;
+      margin-top: 2rem;
       font-size: 0.7rem;
-      font-weight: bold;
+      color: #000;
+      text-decoration: none;
     }
-    .back-link:hover { text-decoration: underline; }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding-top: 24px;
+      }
+
+      .modal-window {
+        width: min(94vw, 520px);
+      }
+
+      .event-place {
+        font-size: 0.86rem;
+      }
+    }
   </style>
 </head>
-
 <body>
-  <h1>Q RADIO</h1>
-  <p class="subtitle">ARCHIVE — recorded DJ sets by our artists</p>
 
-  <div class="radio-column">
+<h1>EVENT ARCHIVE</h1>
+<p class="subtitle">ARCHIVE — past events</p>
 
-    <!-- TRACK 1 -->
-    <div class="radio-item">
-      <iframe
-        scrolling="no"
-        frameborder="no"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/giulio-sartoretti/quercia-opening-set-balagan&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-      </iframe>
-      <a class="fallback-link"
-         href="https://soundcloud.com/giulio-sartoretti/quercia-opening-set-balagan"
-         target="_blank"
-         rel="noopener">
-         Open on SoundCloud — Opening Set (Balagan)
-      </a>
+<div class="archive-column" id="archive"></div>
+
+<a href="index.html" class="back-link">← Back to Home</a>
+
+<div class="modal" id="modal">
+  <div class="modal-window" id="modal-window">
+    <div class="window-bar" id="window-bar">
+      <button class="window-dot red" id="close-modal" aria-label="Close flyer"></button>
+      <span class="window-dot yellow"></span>
+      <span class="window-dot green"></span>
+      <div class="window-title">Flyer Preview</div>
     </div>
 
-    <!-- TRACK 2 (NEW) -->
-    <div class="radio-item">
-      <iframe
-        scrolling="no"
-        frameborder="no"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-787955934/sandro-sess-1&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-      </iframe>
-      <a class="fallback-link"
-         href="https://soundcloud.com/user-787955934/sandro-sess-1"
-         target="_blank"
-         rel="noopener">
-         Open on SoundCloud — Sandro / Sess 1
-      </a>
-    </div>
+    <div class="modal-content">
+      <div class="modal-meta">
+        <div class="modal-event-date" id="modal-title"></div>
+        <div class="modal-event-place" id="modal-place"></div>
+      </div>
 
-    <!-- TRACK 3 -->
-    <div class="radio-item">
-      <iframe 
-        scrolling="no"
-        frameborder="no"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/giano-closing-set-from-club%3Fsi%3D95366ec1eb844acbaa160ffb0f3c4e7d%26utm_source%3Dclipboard%26utm_medium%3Dtext%26utm_campaign%3Dsocial_sharing&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-      </iframe>
-      <a class="fallback-link"
-         href="https://soundcloud.com/user-818297961/giano-closing-set-from-club?si=95366ec1eb844acbaa160ffb0f3c4e7d&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
-         target="_blank"
-         rel="noopener">
-         Open on SoundCloud — Closing Set (Giano)
-      </a>
+      <div class="flyer-frame" id="flyer-frame">
+        <div class="flyer-placeholder" id="flyer-placeholder">
+          Flyer coming soon
+        </div>
+        <img id="flyer-image" class="flyer-image" src="" alt="" style="display:none;">
+      </div>
     </div>
-
-    <!-- TRACK 4 -->
-    <div class="radio-item">
-      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/take-001&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-      </iframe>
-      <a class="fallback-link" href="https://soundcloud.com/user-818297961/take-001" target="_blank" rel="noopener">
-        Open on SoundCloud — TAKE 001
-      </a>
-    </div>
-
-    <!-- TRACK 5 -->
-    <div class="radio-item">
-      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-818297961/take-002&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-      </iframe>
-      <a class="fallback-link" href="https://soundcloud.com/user-818297961/take-002" target="_blank" rel="noopener">
-        Open on SoundCloud — TAKE 002
-      </a>
-    </div>
-
-    <!-- TRACK 6 -->
-    <div class="radio-item">
-      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/ale_bi/opening-live-set-0106-the-sanctuary-eco-retreat-rome&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-      </iframe>
-      <a class="fallback-link" href="https://soundcloud.com/ale_bi/opening-live-set-0106-the-sanctuary-eco-retreat-rome" target="_blank" rel="noopener">
-        Open on SoundCloud — Opening Live Set 01/06
-      </a>
-    </div>
-
-    <!-- TRACK 7 -->
-    <div class="radio-item">
-      <iframe scrolling="no" frameborder="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/ale_bi/tech&color=%23000000&auto_play=false&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false">
-      </iframe>
-      <a class="fallback-link" href="https://soundcloud.com/ale_bi/tech" target="_blank" rel="noopener">
-        Open on SoundCloud — Tech
-      </a>
-    </div>
-
   </div>
+</div>
 
-  <a href="index.html" class="back-link">← Back to Home</a>
+<script>
+const events = [
+  ["20.03.2026","Balagan","Roma",""],
+  ["07.03.2026","Apophis Club","Milano",""],
+  ["06.02.2026","Balagan","Roma",""],
+  ["12.12.2025","Club Industria","Roma",""],
+  ["15.11.2025","Club Industria","Roma",""],
+  ["17.10.2025","Club Industria","Roma",""],
+  ["20.09.2025","Grandangolo","Roma",""],
+  ["15.08.2025","MV :)","",""],
+  ["10.08.2025","Surf","Porto Pollo",""],
+  ["09.08.2025","Kuta","Porto Rotondo",""],
+  ["27.06.2025","Forte Trionfale","Roma",""],
+  ["11.05.2025","The Sanctuary","Roma",""],
+  ["19.04.2025","Lanificio","Roma",""],
+  ["30.03.2025","The Sanctuary","Roma",""],
+  ["02.03.2025","The Sanctuary","Roma",""],
+  ["21.02.2025","Club Industria","Roma",""],
+  ["19.12.2024","Proj3ct Store","Roma",""],
+  ["15.11.2024","La Villa","Roma",""],
+  ["05.10.2024","Notorious Club","Roma",""],
+  ["07.07.2024","Cave di Tufo","Roma",""],
+  ["02.06.2024","Terrazza C1bo","Roma",""],
+  ["12.05.2024","Coconut Bar","Roma",""]
+];
+
+const container = document.getElementById("archive");
+const modal = document.getElementById("modal");
+const modalWindow = document.getElementById("modal-window");
+const windowBar = document.getElementById("window-bar");
+const modalTitle = document.getElementById("modal-title");
+const modalPlace = document.getElementById("modal-place");
+const flyerImage = document.getElementById("flyer-image");
+const flyerPlaceholder = document.getElementById("flyer-placeholder");
+const closeModalBtn = document.getElementById("close-modal");
+
+events.forEach((e, i) => {
+  const el = document.createElement("div");
+  el.className = "event-card";
+
+  el.innerHTML = `
+    <div class="event-top">
+      <div class="event-date">${e[0]}</div>
+      <div class="event-place">${e[1]}</div>
+    </div>
+    <div class="event-city">${e[2]}</div>
+  `;
+
+  const dateBtn = el.querySelector(".event-date");
+  dateBtn.addEventListener("click", () => openModal(e));
+
+  container.appendChild(el);
+
+  setTimeout(() => {
+    el.classList.add("is-visible");
+  }, i * 55);
+});
+
+function resetWindowPosition() {
+  modalWindow.style.left = "";
+  modalWindow.style.top = "";
+}
+
+function openModal(eventData) {
+  const [date, place, city, flyer] = eventData;
+
+  modalTitle.textContent = date;
+  modalPlace.textContent = city ? `${place} — ${city}` : place;
+
+  if (flyer && flyer.trim() !== "") {
+    flyerImage.src = flyer;
+    flyerImage.alt = `${date} ${place}`;
+    flyerImage.style.display = "block";
+    flyerPlaceholder.style.display = "none";
+  } else {
+    flyerImage.src = "";
+    flyerImage.style.display = "none";
+    flyerPlaceholder.style.display = "block";
+  }
+
+  resetWindowPosition();
+  modal.classList.add("open");
+}
+
+function closeModal() {
+  modal.classList.remove("open");
+}
+
+closeModalBtn.addEventListener("click", closeModal);
+
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    closeModal();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeModal();
+  }
+});
+
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+let startLeft = 0;
+let startTop = 0;
+
+windowBar.addEventListener("pointerdown", (e) => {
+  if (e.target.closest(".window-dot.red")) return;
+
+  isDragging = true;
+  windowBar.classList.add("dragging");
+  modalWindow.setPointerCapture(e.pointerId);
+
+  const rect = modalWindow.getBoundingClientRect();
+
+  modalWindow.style.left = rect.left + "px";
+  modalWindow.style.top = rect.top + "px";
+
+  startX = e.clientX;
+  startY = e.clientY;
+  startLeft = rect.left;
+  startTop = rect.top;
+});
+
+windowBar.addEventListener("pointermove", (e) => {
+  if (!isDragging) return;
+
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+
+  const newLeft = startLeft + dx;
+  const newTop = startTop + dy;
+
+  const rect = modalWindow.getBoundingClientRect();
+  const maxLeft = window.innerWidth - rect.width;
+  const maxTop = window.innerHeight - rect.height;
+
+  modalWindow.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + "px";
+  modalWindow.style.top = Math.max(0, Math.min(newTop, maxTop)) + "px";
+});
+
+function stopDragging(pointerId) {
+  isDragging = false;
+  windowBar.classList.remove("dragging");
+  try {
+    modalWindow.releasePointerCapture(pointerId);
+  } catch (err) {}
+}
+
+windowBar.addEventListener("pointerup", (e) => stopDragging(e.pointerId));
+windowBar.addEventListener("pointercancel", (e) => stopDragging(e.pointerId));
+</script>
+
 </body>
 </html>
