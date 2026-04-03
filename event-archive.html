@@ -121,7 +121,9 @@
     }
 
     .modal-window {
-      position: relative;
+      position: fixed;
+      left: 50%;
+      top: 50%;
       width: min(92vw, 520px);
       max-height: 88vh;
       background: rgba(255,255,255,0.88);
@@ -129,15 +131,20 @@
       border-radius: 18px;
       overflow: hidden;
       box-shadow: 0 30px 80px rgba(0,0,0,0.22);
-      transform: translateY(18px) scale(0.96);
+      transform: translate(-50%, calc(-50% + 18px)) scale(0.96);
       transition: transform 0.32s ease;
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      touch-action: none;
+      will-change: left, top, transform;
     }
 
     .modal.open .modal-window {
-      transform: translateY(0) scale(1);
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-window.is-dragged {
+      transform: translate(0, 0) scale(1);
+      transition: none;
     }
 
     .window-bar {
@@ -147,15 +154,10 @@
       padding: 12px 14px;
       border-bottom: 1px solid rgba(0,0,0,0.08);
       background: rgba(255,255,255,0.65);
-      cursor: grab;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
     }
 
-    .window-bar.dragging {
-      cursor: grabbing;
-    }
 
     .window-dot {
       width: 12px;
@@ -361,8 +363,9 @@ events.forEach((e, i) => {
 });
 
 function resetWindowPosition() {
-  modalWindow.style.left = "";
-  modalWindow.style.top = "";
+  modalWindow.classList.remove("is-dragged");
+  modalWindow.style.left = "50%";
+  modalWindow.style.top = "50%";
 }
 
 function openModal(eventData) {
@@ -404,58 +407,24 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-let isDragging = false;
-let startX = 0;
-let startY = 0;
-let startLeft = 0;
-let startTop = 0;
-
-windowBar.addEventListener("pointerdown", (e) => {
-  if (e.target.closest(".window-dot.red")) return;
-
-  isDragging = true;
-  windowBar.classList.add("dragging");
-  modalWindow.setPointerCapture(e.pointerId);
-
-  const rect = modalWindow.getBoundingClientRect();
-
-  modalWindow.style.left = rect.left + "px";
-  modalWindow.style.top = rect.top + "px";
-
-  startX = e.clientX;
-  startY = e.clientY;
-  startLeft = rect.left;
-  startTop = rect.top;
-});
-
-windowBar.addEventListener("pointermove", (e) => {
-  if (!isDragging) return;
-
-  const dx = e.clientX - startX;
-  const dy = e.clientY - startY;
-
-  const newLeft = startLeft + dx;
-  const newTop = startTop + dy;
-
-  const rect = modalWindow.getBoundingClientRect();
-  const maxLeft = window.innerWidth - rect.width;
-  const maxTop = window.innerHeight - rect.height;
-
-  modalWindow.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + "px";
-  modalWindow.style.top = Math.max(0, Math.min(newTop, maxTop)) + "px";
-});
-
-function stopDragging(pointerId) {
+windowBar.addEventListener("lostpointercapture", () => {
   isDragging = false;
+  currentPointerId = null;
   windowBar.classList.remove("dragging");
-  try {
-    modalWindow.releasePointerCapture(pointerId);
-  } catch (err) {}
-}
+});
 
-windowBar.addEventListener("pointerup", (e) => stopDragging(e.pointerId));
-windowBar.addEventListener("pointercancel", (e) => stopDragging(e.pointerId));
+window.addEventListener("resize", () => {
+  if (!modal.classList.contains("open") || !modalWindow.classList.contains("is-dragged")) return;
+
+  const rect = modalWindow.getBoundingClientRect();
+  const maxLeft = Math.max(0, window.innerWidth - rect.width);
+  const maxTop = Math.max(0, window.innerHeight - rect.height);
+
+  modalWindow.style.left = Math.max(0, Math.min(rect.left, maxLeft)) + "px";
+  modalWindow.style.top = Math.max(0, Math.min(rect.top, maxTop)) + "px";
+});
 </script>
 
 </body>
 </html>
+
