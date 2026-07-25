@@ -12,7 +12,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: visible; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       background-color: #fff;
@@ -20,27 +20,36 @@
       position: relative;
     }
 
-    .logo-container {
+    /* ===== Scattered draggable letters ===== */
+    #letters-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none; /* layer transparent to clicks; letters re-enable */
+    }
+    .letter {
       position: absolute;
-      top: 15%; left: 50%;
-      width: 48vw;
-      max-width: 360px;
-      transform: translate(-50%, -50%);
-      perspective: 1000px;
+      top: 0;
+      left: 0;
+      /* Height defines the size; width follows the glyph aspect ratio.
+         ~1/7 of the original logo footprint, responsive. */
+      height: clamp(34px, 9vw, 68px);
       cursor: grab;
       touch-action: none;
-      z-index: 9999;
-    }
-    .logo {
-      width: 100%;
-      height: auto;
-      transform-style: preserve-3d;
-      transform-origin: center center;
-      animation: rotateY 10s linear infinite;
+      pointer-events: auto;
       user-select: none;
-      pointer-events: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      will-change: transform;
     }
-    @keyframes rotateY { to { transform: rotateY(360deg); } }
+    .letter svg {
+      display: block;
+      height: 100%;
+      width: auto;
+      pointer-events: none; /* dragging handled on wrapper */
+    }
+    .letter svg path { fill: #000; }
+    .letter.dragging { cursor: grabbing; }
 
     .menu-container {
       position: absolute;
@@ -134,21 +143,18 @@
     }
 
     .subtitle a {
-  color: #000;
-  text-decoration: none;
-}
-
-.subtitle a:hover {
-  text-decoration: underline;
-}
-    .event-box { min-height: 130px; }
+      color: #000;
+      text-decoration: none;
+    }
+    .subtitle a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
-  <div class="logo-container" id="logo-container">
-    <img src="logo.png" alt="QUERCIA Logo" class="logo" id="logo">
-  </div>
+  <!-- Scattered draggable letters get injected here -->
+  <div id="letters-layer"></div>
 
   <div class="menu-container">
     <button id="menu-toggle">Menu</button>
@@ -183,8 +189,6 @@
   ></a>
 </div>
 
-  <div style="height: 15px;"></div>
-  
 <p class="subtitle">
   <a href="https://on.soundcloud.com/1k0OopvukvnGvhFq9K" target="_blank">soundcloud</a>
   &nbsp;—&nbsp;
@@ -192,80 +196,236 @@
 </p>
 
   <script>
-    const container = document.getElementById('logo-container');
-    let isDragging=false,startX=0,startY=0,origX=0,origY=0;
+    /* ============================================================
+       SCATTERED DRAGGABLE FLOATING LETTERS
+       ============================================================ */
+    const LETTERS = [
+  { ch: "Q", ar: 0.9199, vb: "0 0 193.04 209.85", d: "M188.59,171.13l-2.1,1.54c-4.36,3.15-8.41,5.09-15.28,5.09-8.24,0-16.25-8.48-23.13-17.46,18.75-21.02,29.51-47.78,29.51-73.73C177.6,29.75,133.55,0,89.97,0c-22.55,0-29.34,1.7-33.06,4.45C21.26,31.77,0,67.66,0,100.57c0,57.96,32.81,91.26,89.97,91.26,9.62,0,20.38-3.31,31.29-9.62l2.75,3.31c12.53,15.69,19.4,24.33,41.55,24.33h1.53l25.95-34.19-4.45-4.53ZM23.6,72.44c0-8.09,2.1-17.55,5.98-27.09,7.47-3.72,14.44-6.49,21.18-8.23v100.05c-16.82-15.36-27.16-38.31-27.16-64.73ZM138.08,151.37c-1.53.54-5.92,2.08-10.9,3.29-4.21,1.03-10.5,2.21-18.58,2.51-2.62.2-6.21.33-10.46.06,0,0-12.79-.69-26.05-6.27V34.77c5.27-.05,10.06.3,14.24.8,5.41.88,13.18,2.72,21.74,6.9,2.35,1.15,12.03,6.02,21.91,15.91,8.06,8.06,12.65,15.86,14.73,19.7,1.96,3.63,5.55,10.41,7.69,20.14,1.94,8.81,1.76,15.94,1.6,19.08-.77,14.17-5.83,25.15-9.54,31.6-2.03.86-4.16,1.68-6.37,2.47Z" },
+  { ch: "U", ar: 0.8338, vb: "0 0 148.12 177.64", d: "M6.58.14h20.72c1.79,0,3.54.09,5.24.25s2.96.73,3.78,1.7c.81,1.31,1.26,2.97,1.34,5,.08,2.03.12,4.11.12,6.22v83.38c0,.65-.04,1.34-.12,2.07-.09.73-.04,1.42.12,2.07v3.9c0,1.46-.04,3.01-.12,4.63-.09,1.63.04,3.09.37,4.39,0,1.14.08,2.03.24,2.68.33,1.79.61,3.58.85,5.37.24,1.79.69,3.58,1.34,5.37,1.79,4.23,4.1,7.72,6.95,10.48,2.84,2.77,6.62,4.96,11.34,6.59,1.3.33,2.6.57,3.9.73,1.3.16,2.6.41,3.9.73.81.33,1.54.45,2.19.37.65-.08,1.38-.04,2.2.12.65.17,1.7.21,3.17.12,1.46-.08,2.44-.2,2.92-.37h3.66c1.3-.32,2.6-.57,3.9-.73,1.3-.16,2.52-.4,3.66-.73,2.27-.49,4.06-1.05,5.37-1.7,2.92-1.3,5.48-3.05,7.68-5.24,2.19-2.19,3.94-4.67,5.24-7.44,1.79-4.23,2.84-9.22,3.17-14.99.32-5.76.49-11.74.49-17.92V15.99c0-2.27-.04-4.79-.12-7.56-.08-2.76.37-4.79,1.34-6.1.81-.97,1.95-1.58,3.41-1.83,1.46-.24,3.09-.37,4.88-.37h15.6c1.3,0,2.56-.04,3.78-.12,1.22-.08,2.4.04,3.54.37,2.27.48,3.74,1.3,4.39,2.44.81,1.31,1.18,3.13,1.1,5.48-.08,2.36-.12,4.51-.12,6.46v81.92c0,6.18-.08,12.19-.24,18.04-.16,5.85-.89,11.13-2.19,15.85-2.28,7.64-5.16,14.26-8.65,19.87-3.5,5.61-8.09,10.36-13.77,14.26-5.04,3.58-10.97,6.5-17.8,8.77-1.46.49-2.97.89-4.51,1.22-1.55.32-3.05.65-4.51.97-.98.32-1.91.49-2.8.49s-1.83.16-2.8.48c-1.95.33-4.14.57-6.58.73s-4.8.25-7.07.25c-15.44.16-28.61-1.75-39.5-5.73-10.89-3.98-19.42-10.44-25.6-19.38-2.11-2.92-3.86-5.97-5.24-9.14-1.38-3.17-2.64-6.62-3.78-10.36-.33-.81-.49-1.5-.49-2.07s-.16-1.25-.49-2.07c-1.3-4.55-1.95-9.67-1.95-15.36V6.61c0-1.54.24-2.8.73-3.78C1.71,1.69,3.01.87,4.63.39h.98c.33,0,.65-.08.98-.25Z" },
+  { ch: "E", ar: 0.7037, vb: "0 0 122.14 173.58", d: "M6.11,0h104.27c1.81,0,3.54.08,5.2.24,1.66.17,2.86.82,3.62,1.95.3.49.49,1.06.57,1.7.07.65.26,1.31.56,1.95v2.68c.15,1.14.19,2.36.11,3.66-.08,1.3-.11,2.52-.11,3.66,0,1.31.04,2.56.11,3.78.07,1.22.04,2.4-.11,3.53-.15.82-.22,2.04-.22,3.66-.45,1.95-1.21,3.25-2.26,3.9-.91.65-2.04.97-3.39.97h-60.84c-1.21,0-2.6-.04-4.18-.12s-3.17-.08-4.75,0c-1.58.08-3.05.24-4.41.48-1.36.25-2.34.61-2.94,1.1-1.06.81-1.7,1.99-1.92,3.53-.23,1.55-.34,3.29-.34,5.24v20.96c.3,1.31.6,2.4.91,3.29.3.89.83,1.58,1.58,2.07.9.65,1.96,1.02,3.17,1.1,1.21.09,2.49.12,3.85.12h51.12c1.06,0,2.38-.04,3.96-.12,1.58-.08,3.13-.08,4.64,0,1.5.09,2.9.2,4.18.37,1.28.17,2.22.49,2.83.97.75.49,1.28,1.47,1.58,2.93.3,1.46.49,3.04.57,4.75.07,1.7.07,3.45,0,5.24-.08,1.79-.11,3.33-.11,4.63v3.41c0,1.14-.15,2.11-.45,2.92-.3,1.31-.91,2.36-1.81,3.17-.76.48-1.77.81-3.05.97-1.28.17-2.71.24-4.3.24s-3.17-.04-4.75-.12c-1.58-.08-2.91-.12-3.96-.12h-44.11c-1.81,0-3.54-.04-5.2-.12-1.66-.08-3.2,0-4.64.25-1.43.24-2.64.73-3.62,1.46-.98.73-1.7,1.83-2.15,3.29-.15.82-.23,1.67-.23,2.56v25.47c0,1.95.11,3.7.34,5.24.23,1.55.87,2.73,1.92,3.54.45.49,1.02.77,1.7.85.68.08,1.39.28,2.15.61h2.26c.75.16,1.58.2,2.49.12s1.73-.12,2.49-.12h67.52c1.13,0,2.15.24,3.05.73,1.21.49,2.04,1.38,2.49,2.68.3.81.49,1.79.57,2.92.07,1.14.11,2.36.11,3.66v11.22c0,1.95-.08,3.78-.23,5.48-.15,1.71-.83,2.97-2.04,3.78-.91.82-2.07,1.22-3.51,1.22H9.95c-2.11,0-3.96-.12-5.54-.37-1.58-.25-2.75-1.02-3.51-2.32-.6-.98-.91-2.23-.91-3.78V6.09c0-1.46.3-2.6.91-3.41C1.51,1.55,2.64.73,4.3.24c.3-.16.6-.2.9-.12.3.09.6.04.91-.12Z" },
+  { ch: "R", ar: 0.8558, vb: "0 0 156.53 182.91", d: "M0,39.56v143.3h43.09v-71.95c5.34-.08,11.96-.32,16.98-.73l43.02,72.67h49.39l4.04.05v-5.79l-59.51-75.75c28.78-11.32,39.21-30.72,39.21-45.59C136.22,20.37,100.81,0,39.05,0h-4.04v4.04c0,21.66-5.99,35.81-35.01,35.81M41.96,100.32v-61.68c47.94.97,53.6,18.27,53.6,31.37,0,18.43-19,29.1-53.6,30.31Z" },
+  { ch: "C", ar: 0.8635, vb: "0 0 156.94 181.75", d: "M80.07.12c16.63-.32,30.33,2.6,41.1,8.77,10.77,6.18,19.32,14.39,25.66,24.62,1.74,2.77,3.17,5.57,4.28,8.41,1.11,2.85,2.14,5.97,3.09,9.39.31,1.14.63,2.44.95,3.9.31,1.46.24,2.84-.24,4.14-.32.98-.91,1.59-1.78,1.83-.87.24-1.86.53-2.97.85h-1.9c-.95.33-2.02.45-3.21.37-1.19-.08-2.34-.12-3.45-.12-1.43,0-3.13.04-5.11.12-1.98.09-3.92.09-5.82,0-1.9-.08-3.65-.24-5.22-.48-1.59-.25-2.78-.61-3.56-1.1-1.27-1.14-2.22-2.68-2.85-4.63s-1.43-3.66-2.37-5.12c-3.01-5.37-6.97-9.59-11.88-12.68-3.33-2.11-7.05-3.82-11.17-5.12-2.7-.98-6.06-1.46-10.1-1.46s-7.57.4-10.57,1.22c-1.27.33-2.42.61-3.45.85-1.03.24-2.1.61-3.21,1.1-10.77,4.71-18.37,12.52-22.81,23.4-.8,1.95-1.51,3.98-2.14,6.1-.63,2.11-1.35,4.31-2.14,6.58-.16,1.14-.32,2.19-.48,3.17-.16.98-.32,2.04-.48,3.17-.32.97-.44,1.99-.36,3.05.08,1.06-.04,2.16-.36,3.29-.32,1.3-.44,2.64-.36,4.02.08,1.38.12,2.73.12,4.02,0,.65-.04,1.31-.12,1.95-.08.65-.04,1.3.12,1.95v2.19c.31.82.44,1.62.36,2.44-.08.82.04,1.63.36,2.44,0,.97.16,2.28.48,3.9.31,1.79.63,3.46.95,5,.31,1.55.71,3.05,1.19,4.51,2.22,6.82,5.07,12.64,8.55,17.43,3.48,4.8,8.08,8.74,13.78,11.82,1.74.82,3.56,1.51,5.46,2.07,1.9.57,3.96,1.18,6.18,1.83.79.17,1.55.29,2.26.37.71.09,1.46.12,2.26.12h1.9c.79.33,1.82.45,3.09.37,1.26-.08,2.3-.2,3.09-.37.95,0,1.67-.08,2.14-.24,1.9-.32,3.68-.65,5.35-.98,1.66-.32,3.29-.89,4.87-1.7,3.64-1.62,6.77-3.78,9.38-6.46,2.61-2.68,4.95-5.73,7.01-9.14.95-1.62,1.74-3.41,2.37-5.37.63-1.95,1.35-3.9,2.14-5.85.48-1.79.95-3.41,1.43-4.88.47-1.46,1.5-2.6,3.09-3.41.95-.32,2.14-.48,3.56-.48h22.93c1.5,0,2.73.33,3.68.97,1.11.82,1.7,2.11,1.78,3.9.08,1.79-.12,3.49-.6,5.12l-1.43,6.58c-.79,2.44-1.54,4.8-2.25,7.07-.71,2.28-1.63,4.47-2.73,6.58-.8,1.31-1.43,2.56-1.9,3.78-.47,1.22-1.11,2.4-1.9,3.54-8.71,13.98-21.38,23.73-38.01,29.25-1.75.65-3.49,1.14-5.23,1.46-1.74.32-3.48.65-5.23.97-.79.33-1.54.45-2.25.37s-1.47.04-2.26.37c-1.11,0-2.18.04-3.21.12-1.03.08-2.1.2-3.21.37h-8.08c-1.43,0-2.77-.16-4.04-.49-.48-.16-1.27-.24-2.37-.24-1.11-.16-2.22-.33-3.33-.49-1.11-.16-2.3-.33-3.56-.48-1.59-.49-3.13-.9-4.64-1.22-1.5-.33-3.05-.73-4.63-1.22-1.43-.48-2.85-1.01-4.28-1.58s-2.77-1.18-4.04-1.83c-9.5-4.22-17.54-9.87-24.11-16.94-6.58-7.07-11.92-15.48-16.04-25.23-.95-2.44-1.74-4.88-2.37-7.31-.64-2.44-1.35-4.96-2.14-7.56-.32-.81-.48-1.5-.48-2.07s-.08-1.18-.24-1.83c-.32-1.46-.56-3-.72-4.63-.16-1.62-.39-3.17-.71-4.63-.32-.81-.44-1.5-.36-2.07s.04-1.18-.12-1.83v-4.63c-.32-.81-.48-2.03-.48-3.66s.16-2.84.48-3.66c.15-.49.19-1.01.12-1.59-.08-.57-.12-1.01-.12-1.34v-2.19c.31-1.3.51-2.68.59-4.15.08-1.46.2-2.92.36-4.39.31-1.3.56-2.56.71-3.78.16-1.22.39-2.47.71-3.78.63-2.27,1.19-4.51,1.67-6.7.47-2.19,1.11-4.26,1.9-6.22.79-2.11,1.62-4.23,2.49-6.34.87-2.11,1.86-4.06,2.97-5.85,2.53-4.55,5.15-8.61,7.84-12.19.79-1.14,1.66-2.2,2.61-3.17.95-.97,1.9-1.95,2.85-2.92,3.96-4.06,8.11-7.52,12.47-10.36,4.35-2.84,9.3-5.4,14.85-7.68,1.9-.81,3.88-1.5,5.94-2.07,2.05-.57,4.19-1.1,6.41-1.59.95-.32,1.9-.48,2.85-.48s1.82-.16,2.61-.49c1.26-.16,2.49-.28,3.68-.37,1.18-.08,2.41-.2,3.68-.37.31-.16.71-.16,1.18,0,.48.16.87.16,1.19,0Z" },
+  { ch: "I", ar: 0.2188, vb: "0 0 38.05 173.9", d: "M6.72,0h20.96c1.79,0,3.49.04,5.12.12s2.84.69,3.66,1.83c.81,1.14,1.25,2.6,1.34,4.39.08,1.79.12,3.74.12,5.85v145.79c0,2.11.04,4.47.12,7.07.08,2.6-.28,4.55-1.1,5.85-.65,1.14-2.11,2.04-4.39,2.68-1.14.32-2.36.4-3.66.24s-2.6-.24-3.9-.24h-14.38c-1.79,0-3.45-.08-5-.24-1.55-.16-2.81-.65-3.78-1.46-.82-.81-1.31-2.03-1.46-3.66-.17-1.62-.25-3.33-.25-5.12V17.31C.13,15.04.09,12.35.01,9.26-.07,6.18.29,3.98,1.11,2.68,1.76,1.7,2.81.9,4.28.24c.49,0,.94-.04,1.34-.12.4-.08.77-.12,1.1-.12Z" },
+  { ch: "A", ar: 1.1390, vb: "0 0 218.77 192.08", d: "M216.79,158.52l-1.47-2.75c-7.1.43-28.59-.72-33.76-.72-9.38,0-25.31-31.04-25.31-147.37l-.57-2.18-3.15-1.53-1.45.89c-10.75,6.78-21.58,12.93-35.25,12.93s-24.82-4.85-35.49-9.61C70.81,3.96,61.76,0,51.81,0S2.58,6.06,2.58,33.95c0,9.94,7.03,18.02,15.69,18.02,10.34,0,17.21-7.83,17.21-19.56,0-6.47-3.39-11.32-5.65-14.55-.41-.57-.89-1.21-1.3-1.78.4-.16.97-.24,1.86-.24,5.5,0,12.36,6.3,19.07,12.29,5.18,4.77,10.43,9.53,15.92,12.36-14.22,4.69-37.18,10.75-46.64,12.45l-2.51.4v6.38h3.08c4.28,0,6.87.65,8.24,2.11,1.13,1.21,1.62,3.55,1.37,6.71l-7.11,80.19C8.32,159.34,0,176.23,0,186.17v3.08h7.68l.72-1.94c2.91-7.03,9.3-10.99,18.11-10.99,8,0,17.38,3.63,27.24,7.44,10.59,4.12,21.59,8.33,31.85,8.33,26.43,0,35.81-28.14,35.81-52.31v-3.07h-8.65v3.07c0,3.23-.73,13.74-10.67,13.74-6.95,0-14.71-1.62-22.95-3.31-9.62-1.94-20.45-4.2-31.94-4.2-2.67,0-5.25.32-7.68.8,6.79-4.36,14.22-8,22.63-11.16l1.94-.72v-2.1c0-9.85.17-18.78.37-26.92h57.32c6.26,58.59,21.27,85.93,46.92,85.93l50.07-29.94-1.99-3.37ZM80.03,44.55l38.4-14.87c.07,21.02.6,39.14,1.7,54.9h-54.73c2.02-25,6.44-36.87,14.64-40.03Z" }
+];
 
-    container.addEventListener('pointerdown',e=>{
-      e.preventDefault();
-      isDragging=true;
-      container.setPointerCapture(e.pointerId);
-      startX=e.clientX;
-      startY=e.clientY;
-      const r=container.getBoundingClientRect();
-      origX=r.left+r.width/2;
-      origY=r.top+r.height/2;
-      container.style.cursor='grabbing';
+    const layer = document.getElementById('letters-layer');
+
+    // Each letter tracks its own position (x,y = top-left in px) and a
+    // slow independent drift velocity. Dragging overrides drift; on release
+    // drift resumes.
+    const nodes = [];
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function buildLetter(def) {
+      const el = document.createElement('div');
+      el.className = 'letter';
+      el.innerHTML = '<svg viewBox="' + def.vb + '" xmlns="http://www.w3.org/2000/svg"><path d="' + def.d + '"/></svg>';
+      layer.appendChild(el);
+
+      const state = {
+        el,
+        seq: nodes.length, // spelling position (0=Q ... 6=A)
+        x: 0, y: 0,
+        vx: 0, vy: 0,
+        rot: 0,
+        w: 0, h: 0,
+        dragging: false,
+        dragOffX: 0, dragOffY: 0,
+        pointerId: null
+      };
+      nodes.push(state);
+      return state;
+    }
+
+    // Place all letters at random positions fully on-screen (no letter
+    // starts off the visible area). Called on load and on resize-respawn.
+    function scatter() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // Measure each letter first so we can lay out a centered word.
+      nodes.forEach(s => {
+        const r = s.el.getBoundingClientRect();
+        s.w = r.width;
+        s.h = r.height;
+      });
+
+      // Order letters by spelling position (Q..A), left to right.
+      const spelled = nodes.slice().sort((a, b) => a.seq - b.seq);
+
+      // Gap between adjacent letters (a bit of air, scales down on mobile).
+      const gap = Math.min(vw * 0.018, 14);
+      const totalW = spelled.reduce((sum, s) => sum + s.w, 0) + gap * (spelled.length - 1);
+
+      // Baseline row position: centered horizontally, at the old logo height.
+      let penX = (vw - totalW) / 2;
+      const baseY = vh * 0.15;
+
+      // Jitter magnitudes for the "readable disorder" look.
+      const jitterX = Math.min(vw * 0.012, 10);
+      const jitterY = Math.min(vh * 0.05, 42);
+
+      spelled.forEach(s => {
+        let x = penX + rand(-jitterX, jitterX);
+        let y = baseY - s.h / 2 + rand(-jitterY, jitterY);
+        // clamp so every letter still starts fully on-screen
+        s.x = Math.max(0, Math.min(x, vw - s.w));
+        s.y = Math.max(0, Math.min(y, vh - s.h));
+        penX += s.w + gap;
+        // random tilt angle, fixed for the letter's lifetime this session
+        s.rot = rand(-30, 30);
+        // slow independent drift (px per frame at 60fps)
+        const speed = rand(0.12, 0.35);
+        const angle = rand(0, Math.PI * 2);
+        s.vx = Math.cos(angle) * speed;
+        s.vy = Math.sin(angle) * speed;
+        applyTransform(s);
+      });
+    }
+
+    function applyTransform(s) {
+      s.el.style.transform = 'translate(' + s.x + 'px,' + s.y + 'px) rotate(' + s.rot + 'deg)';
+    }
+
+    // ---- Drift animation loop ----
+    // Letters gently float; they bounce softly off viewport edges so the
+    // set stays roughly on-screen, but the user can still drag them off.
+    function tick() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      for (const s of nodes) {
+        if (s.dragging) continue;
+        s.x += s.vx;
+        s.y += s.vy;
+        // soft edge bounce (only while drifting, not while dragged)
+        if (s.x <= 0) { s.x = 0; s.vx = Math.abs(s.vx); }
+        else if (s.x >= vw - s.w) { s.x = vw - s.w; s.vx = -Math.abs(s.vx); }
+        if (s.y <= 0) { s.y = 0; s.vy = Math.abs(s.vy); }
+        else if (s.y >= vh - s.h) { s.y = vh - s.h; s.vy = -Math.abs(s.vy); }
+        applyTransform(s);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // ---- Dragging (pointer events: mouse + touch) ----
+    function attachDrag(s) {
+      s.el.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        s.dragging = true;
+        s.pointerId = e.pointerId;
+        s.el.setPointerCapture(e.pointerId);
+        s.el.classList.add('dragging');
+        // bring the grabbed letter above the others
+        s.el.style.zIndex = String(Date.now() % 100000);
+        s.dragOffX = e.clientX - s.x;
+        s.dragOffY = e.clientY - s.y;
+      });
+
+      s.el.addEventListener('pointermove', e => {
+        if (!s.dragging || e.pointerId !== s.pointerId) return;
+        s.x = e.clientX - s.dragOffX;
+        s.y = e.clientY - s.dragOffY;   // no clamping: can go off-screen
+        applyTransform(s);
+      });
+
+      function endDrag(e) {
+        if (!s.dragging || (s.pointerId !== null && e.pointerId !== s.pointerId)) return;
+        s.dragging = false;
+        s.pointerId = null;
+        s.el.classList.remove('dragging');
+        try { s.el.releasePointerCapture(e.pointerId); } catch (err) {}
+        // resume drift with a fresh random slow direction
+        const speed = rand(0.12, 0.35);
+        const angle = rand(0, Math.PI * 2);
+        s.vx = Math.cos(angle) * speed;
+        s.vy = Math.sin(angle) * speed;
+      }
+      s.el.addEventListener('pointerup', endDrag);
+      s.el.addEventListener('pointercancel', endDrag);
+    }
+
+    // ---- Init ----
+    // Build in spelling order (Q,U,E,R,C,I,A) so the initial layout is a
+    // readable word; the random tilt + drift supply the "disorder".
+    LETTERS.forEach(def => {
+      const s = buildLetter(def);
+      attachDrag(s);
     });
 
-    container.addEventListener('pointermove',e=>{
-      if(!isDragging)return;
-      const dx=e.clientX-startX,dy=e.clientY-startY;
-      container.style.left=origX+dx+'px';
-      container.style.top=origY+dy+'px';
-      container.style.transform='translate(-50%,-50%)';
+    // Wait a frame so getBoundingClientRect has real sizes, then scatter.
+    requestAnimationFrame(() => {
+      scatter();
+      requestAnimationFrame(tick);
     });
 
-    container.addEventListener('pointerup',e=>{
-      isDragging=false;
-      container.releasePointerCapture(e.pointerId);
-      container.style.cursor='grab';
+    // Keep letters sensible on resize: re-clamp any that are now fully
+    // off-screen back to a random on-screen spot (dragged-away ones that
+    // are still partly visible are left alone).
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        nodes.forEach(s => {
+          const fullyOff = (s.x + s.w < 0) || (s.x > vw) || (s.y + s.h < 0) || (s.y > vh);
+          if (fullyOff) {
+            s.x = rand(0, Math.max(0, vw - s.w));
+            s.y = rand(0, Math.max(0, vh - s.h));
+            applyTransform(s);
+          }
+        });
+      }, 150);
     });
 
-    const menuToggle=document.getElementById('menu-toggle');
-    const dropdown=document.getElementById('menu-dropdown');
+    /* ============================================================
+       MENU + EVENT BOX (unchanged)
+       ============================================================ */
+    const menuToggle = document.getElementById('menu-toggle');
+    const dropdown = document.getElementById('menu-dropdown');
 
-    menuToggle.addEventListener('click',e=>{
+    menuToggle.addEventListener('click', e => {
       e.stopPropagation();
-      const open=dropdown.style.display==='block';
-      dropdown.style.display=open?'none':'block';
-      menuToggle.classList.toggle('open',!open);
+      const open = dropdown.style.display === 'block';
+      dropdown.style.display = open ? 'none' : 'block';
+      menuToggle.classList.toggle('open', !open);
     });
 
-    document.addEventListener('click',()=>{
-      dropdown.style.display='none';
+    document.addEventListener('click', () => {
+      dropdown.style.display = 'none';
       menuToggle.classList.remove('open');
     });
-    
-// ===== EVENT CONFIG =====
-const EVENT = {
-  date: "XX.08.2026",
-  location: "TBA",
-  buttonText: "SOON",
-  link: ""
-};
 
-document.getElementById("event-date").textContent = EVENT.date;
-document.getElementById("event-location").textContent = EVENT.location;
+    // ===== EVENT CONFIG =====
+    const EVENT = {
+      date: "XX.08.2026",
+      location: "TBA",
+      buttonText: "SOON",
+      link: ""
+    };
 
-const btn = document.getElementById("event-button");
-btn.textContent = EVENT.buttonText;
+    document.getElementById("event-date").textContent = EVENT.date;
+    document.getElementById("event-location").textContent = EVENT.location;
 
-// ===== BUTTON BEHAVIOR =====
-if (!EVENT.link || EVENT.buttonText === "SOON") {
-  // Disabled state
-  btn.removeAttribute("href");
-  btn.style.cursor = "default";
-  btn.style.background = "#ccc";
-  btn.style.color = "#666";
-  btn.style.border = "1px solid #999";
-} else {
-  // Active state
-  btn.href = EVENT.link;
-  btn.style.cursor = "pointer";
-  btn.style.background = "#000";
-  btn.style.color = "#fff";
-  btn.style.border = "1px solid #000";
-}
+    const btn = document.getElementById("event-button");
+    btn.textContent = EVENT.buttonText;
+
+    // ===== BUTTON BEHAVIOR =====
+    if (!EVENT.link || EVENT.buttonText === "SOON") {
+      btn.removeAttribute("href");
+      btn.style.cursor = "default";
+      btn.style.background = "#ccc";
+      btn.style.color = "#666";
+      btn.style.border = "1px solid #999";
+    } else {
+      btn.href = EVENT.link;
+      btn.style.cursor = "pointer";
+      btn.style.background = "#000";
+      btn.style.color = "#fff";
+      btn.style.border = "1px solid #000";
+    }
   </script>
 
 </body>
