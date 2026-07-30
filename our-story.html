@@ -75,14 +75,28 @@
 
     .floating-image {
       position: absolute;
+      top: 0;
+      left: 0;
       cursor: grab;
       z-index: 10;
       touch-action: none;
       will-change: transform;
-      transition: transform 0.1s ease-out;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+      -webkit-tap-highlight-color: transparent;
+      /* faded in once JS has placed it; transform is NEVER transitioned
+         so dragging tracks the pointer with zero lag */
+      opacity: 0;
+      transition: opacity 0.25s ease;
     }
 
-    .floating-image:active {
+    .floating-image.ready {
+      opacity: 1;
+    }
+
+    .floating-image:active,
+    .floating-image.dragging {
       cursor: grabbing;
     }
 
@@ -112,84 +126,96 @@
   <a href="index.html" class="back-link">← Back to Home</a>
 
   <script>
-    const draggables = document.querySelectorAll('.floating-image');
+    /* ============================================================
+       DRAGGABLE IMAGES
+       Same pointer-capture drag as the letters on the home page,
+       without the floating/drift animation.
+       ============================================================ */
+    const draggables = Array.from(document.querySelectorAll('.floating-image'));
 
-    draggables.forEach(el => {
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    // x / y = current offset in px from the top-left of the page body.
+    // rot = tilt chosen once per session and kept while dragging.
+    const nodes = draggables.map(el => ({
+      el,
+      x: 0, y: 0, rot: 0,
+      dragging: false,
+      offX: 0, offY: 0,
+      pointerId: null
+    }));
+
+    let topZ = 10;
+
+    function applyTransform(s) {
+      s.el.style.transform =
+        'translate(' + s.x + 'px,' + s.y + 'px) rotate(' + s.rot + 'deg)';
+    }
+
+    // Initial scatter — same band as before (120–350px from the top,
+    // 20px side padding), but clamped so nothing lands off-screen.
+    function scatter() {
       const padding = 20;
-      const container = document.body;
-      const containerRect = container.getBoundingClientRect();
-
-      const maxLeft = containerRect.width - el.offsetWidth - padding;
-      const minLeft = padding;
+      const containerW = document.body.clientWidth;
       const minTop = 120;
       const maxTop = 350;
 
-      const x = Math.floor(Math.random() * (maxLeft - minLeft)) + minLeft;
-      const y = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
-      const rotation = Math.floor(Math.random() * 40 - 20);
+      nodes.forEach(s => {
+        const w = s.el.offsetWidth || 120;
+        const maxLeft = Math.max(padding, containerW - w - padding);
 
-      el.dataset.x = x;
-      el.dataset.y = y;
+        s.x = rand(padding, maxLeft);
+        s.y = rand(minTop, maxTop);
+        s.rot = rand(-20, 20);
 
-      el.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+        applyTransform(s);
+        s.el.classList.add('ready');
+      });
+    }
 
-      let isDragging = false;
-      let startX = 0, startY = 0;
-      let currentX = x, currentY = y;
+    function attachDrag(s) {
+      // stop the browser's built-in image drag-and-drop from hijacking the grab
+      s.el.draggable = false;
 
-      const onMove = (clientX, clientY) => {
-        if (!isDragging) return;
-        const dx = clientX - startX;
-        const dy = clientY - startY;
-        el.dataset.x = currentX + dx;
-        el.dataset.y = currentY + dy;
-        el.style.transform = `translate(${currentX + dx}px, ${currentY + dy}px) rotate(${rotation}deg)`;
-      };
-
-      const onMouseDown = e => {
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        currentX = parseFloat(el.dataset.x);
-        currentY = parseFloat(el.dataset.y);
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-      };
-
-      const onMouseMove = e => onMove(e.clientX, e.clientY);
-
-      const onMouseUp = () => {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      };
-
-      const onTouchStart = e => {
-        isDragging = true;
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        currentX = parseFloat(el.dataset.x);
-        currentY = parseFloat(el.dataset.y);
-        document.addEventListener('touchmove', onTouchMove, { passive: false });
-        document.addEventListener('touchend', onTouchEnd);
-      };
-
-      const onTouchMove = e => {
+      s.el.addEventListener('pointerdown', e => {
         e.preventDefault();
-        const touch = e.touches[0];
-        onMove(touch.clientX, touch.clientY);
-      };
+        s.dragging = true;
+        s.pointerId = e.pointerId;
+        // pointer capture keeps the drag glued to this element even when the
+        // cursor/finger outruns it or leaves the window
+        try { s.el.setPointerCapture(e.pointerId); } catch (err) {}
+        s.el.classList.add('dragging');
+        s.el.style.zIndex = ++topZ;   // grabbed image comes to the front
+        s.offX = e.clientX - s.x;
+        s.offY = e.clientY - s.y;
+      });
 
-      const onTouchEnd = () => {
-        isDragging = false;
-        document.removeEventListener('touchmove', onTouchMove);
-        document.removeEventListener('touchend', onTouchEnd);
-      };
+      s.el.addEventListener('pointermove', e => {
+        if (!s.dragging || e.pointerId !== s.pointerId) return;
+        s.x = e.clientX - s.offX;
+        s.y = e.clientY - s.offY;
+        applyTransform(s);
+      });
 
-      el.addEventListener('mousedown', onMouseDown);
-      el.addEventListener('touchstart', onTouchStart, { passive: false });
-    });
+      function endDrag(e) {
+        if (!s.dragging || e.pointerId !== s.pointerId) return;
+        s.dragging = false;
+        s.pointerId = null;
+        s.el.classList.remove('dragging');
+        try { s.el.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      s.el.addEventListener('pointerup', endDrag);
+      s.el.addEventListener('pointercancel', endDrag);
+      s.el.addEventListener('lostpointercapture', endDrag);
+    }
+
+    nodes.forEach(attachDrag);
+
+    // Images need their real width before they can be placed, so wait until
+    // they have loaded — that also removes the old jump-into-position flash.
+    if (document.readyState === 'complete') scatter();
+    else window.addEventListener('load', scatter, { once: true });
 
     // Language toggle logic
     const toggleBtn = document.getElementById('lang-toggle');
