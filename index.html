@@ -109,25 +109,63 @@
       color: #fff;
     }
 
-    .event-box {
+    /* Wrapper: keeps the pair of event boxes centered on the page */
+    .events-wrap {
       position: absolute;
       top: 70%;
       left: 50%;
       transform: translate(-50%, -50%);
+      z-index: 500;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;      /* equal height boxes */
+      gap: clamp(0.4rem, 2vw, 1rem);
+      width: min(94vw, 720px);
+    }
+
+    .event-box {
+      flex: 1 1 0;               /* equal widths, shrink to fit */
+      min-width: 0;              /* allows shrinking below content width */
+      max-width: 340px;
       background: #f5f5f5;
       border: 1px solid #000;
-      padding: 1rem;
-      max-width: 90%;
+      padding: clamp(0.55rem, 2.2vw, 1rem);
       text-align: center;
       font-family: 'Courier Prime', monospace;
-      z-index: 500;
-      min-height: 130px;
+      min-height: clamp(115px, 26vw, 140px);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      overflow-wrap: break-word;
     }
-    .event-box p { margin: 0.25rem 0; font-size: 1rem; }
+    .event-box p {
+      margin: 0.2rem 0;
+      font-size: clamp(0.68rem, 3vw, 1rem);
+      line-height: 1.3;
+      width: 100%;
+    }
+    .event-box .spacer { height: clamp(8px, 2vw, 15px); }
+
+    .event-button {
+      display: inline-block;
+      padding: clamp(0.35rem, 1.6vw, 0.5rem) clamp(0.6rem, 3vw, 1rem);
+      border: 1px solid #000;
+      background: #000;
+      color: #fff;
+      text-decoration: none;
+      font-family: 'Courier Prime', monospace;
+      font-size: clamp(0.62rem, 2.8vw, 0.9rem);
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .event-button.disabled {
+      background: #ccc;
+      color: #666;
+      border: 1px solid #999;
+      cursor: default;
+    }
 
     .subtitle {
       position: absolute;
@@ -169,28 +207,8 @@
     </ul>
   </div>
 
-<!-- EVENT BOX -->
-<div class="event-box">
-  <p class="event-date" id="event-date"></p>
-  <p class="event-location" id="event-location"></p>
-  <div style="height: 15px;"></div>
-  <a
-    id="event-button"
-    target="_blank"
-    style="
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      border: 1px solid #000;
-      background: #000;
-      color: #fff;
-      text-decoration: none;
-      font-family: 'Courier Prime', monospace;
-      font-size: 0.9rem;
-      font-weight: bold;
-      cursor: pointer;
-    "
-  ></a>
-</div>
+<!-- EVENT BOXES (rendered from the EVENTS array in the script below) -->
+<div class="events-wrap" id="events-wrap"></div>
 
 <p class="subtitle">
   <a href="https://on.soundcloud.com/1k0OopvukvnGvhFq9K" target="_blank">soundcloud</a>
@@ -404,33 +422,56 @@
     });
 
     // ===== EVENT CONFIG =====
-    const EVENT = {
-      date: "11.08.2026",
-      location: "PINETA Porto Rotondo",
-      buttonText: "TICKETS",
-      link: "https://xceed.me/en/porto-rotondo/event/quercia-caos-open-air/238723/channel/quercia-1"
-    };
+    // Add / remove objects here — the boxes are generated automatically
+    // and stay centered as a group.
+    const EVENTS = [
+      {
+        date: "11.08.2026",
+        location: "PINETA Porto Rotondo",
+        buttonText: "TICKETS",
+        link: "https://xceed.me/en/porto-rotondo/event/quercia-caos-open-air/238723/channel/quercia-1"
+      },
+      {
+        date: "DD.MM.YYYY",
+        location: "SECOND VENUE",
+        buttonText: "SOON",
+        link: ""            // leave empty (or buttonText "SOON") for a greyed-out button
+      }
+    ];
 
-    document.getElementById("event-date").textContent = EVENT.date;
-    document.getElementById("event-location").textContent = EVENT.location;
+    const eventsWrap = document.getElementById("events-wrap");
 
-    const btn = document.getElementById("event-button");
-    btn.textContent = EVENT.buttonText;
+    EVENTS.forEach(ev => {
+      const box = document.createElement("div");
+      box.className = "event-box";
 
-    // ===== BUTTON BEHAVIOR =====
-    if (!EVENT.link || EVENT.buttonText === "SOON") {
-      btn.removeAttribute("href");
-      btn.style.cursor = "default";
-      btn.style.background = "#ccc";
-      btn.style.color = "#666";
-      btn.style.border = "1px solid #999";
-    } else {
-      btn.href = EVENT.link;
-      btn.style.cursor = "pointer";
-      btn.style.background = "#000";
-      btn.style.color = "#fff";
-      btn.style.border = "1px solid #000";
-    }
+      const date = document.createElement("p");
+      date.className = "event-date";
+      date.textContent = ev.date;
+
+      const loc = document.createElement("p");
+      loc.className = "event-location";
+      loc.textContent = ev.location;
+
+      const spacer = document.createElement("div");
+      spacer.className = "spacer";
+
+      const btn = document.createElement("a");
+      btn.className = "event-button";
+      btn.textContent = ev.buttonText;
+
+      // ===== BUTTON BEHAVIOR =====
+      if (!ev.link || ev.buttonText === "SOON") {
+        btn.classList.add("disabled");
+      } else {
+        btn.href = ev.link;
+        btn.target = "_blank";
+        btn.rel = "noopener";
+      }
+
+      box.append(date, loc, spacer, btn);
+      eventsWrap.appendChild(box);
+    });
   </script>
 
 </body>
