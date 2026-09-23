@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,6 +108,17 @@
       background: #000;
       color: #fff;
     }
+    /* Greyed-out, non-clickable menu item */
+    #menu-dropdown li .menu-disabled {
+      display: block;
+      padding: 0.45rem 1rem;
+      color: #aaa;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.8rem;
+      cursor: default;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
     .event-box {
       position: absolute;
@@ -176,7 +186,7 @@
   <div class="menu-container">
     <button id="menu-toggle">Menu</button>
     <ul id="menu-dropdown">
-      <li><a href="souvenir-shop.html">SOUVENIR SHOP</a></li>
+      <li><span class="menu-disabled" aria-disabled="true">SOUVENIR SHOP</span></li>
       <li><a href="event-archive.html">EVENT ARCHIVE</a></li>
       <li><a href="our-story.html">OUR STORY</a></li>
       <li><a href="contacts.html">CONTACT</a></li>
@@ -400,7 +410,7 @@
     });
 
     /* ============================================================
-       MENU + EVENT BOX (unchanged)
+       MENU + EVENT BOX
        ============================================================ */
     const menuToggle = document.getElementById('menu-toggle');
     const dropdown = document.getElementById('menu-dropdown');
@@ -410,6 +420,11 @@
       const open = dropdown.style.display === 'block';
       dropdown.style.display = open ? 'none' : 'block';
       menuToggle.classList.toggle('open', !open);
+    });
+
+    // Clicking the greyed-out item does nothing and keeps the menu open
+    document.querySelectorAll('.menu-disabled').forEach(el => {
+      el.addEventListener('click', e => e.stopPropagation());
     });
 
     document.addEventListener('click', () => {
