@@ -1,116 +1,119 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" href="favicon-sito.png">
   <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EVENT ARCHIVE | QUERCIA</title>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Courier Prime', monospace;
       background: #fff;
-      padding: 30px 14px 60px;
+      color: #000;
+      padding: 40px 14px 60px;
       max-width: 620px;
       margin: auto;
-      color: #000;
     }
 
-    h1 {
-      font-family: 'Inter', sans-serif;
+    /* ===== Header (same style as the MENU button on the home) ===== */
+    .page-header {
       text-align: center;
-      font-size: 1.2rem;
-      margin-bottom: 0.6rem;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-size: 0.8rem;
-      opacity: 0.6;
       margin-bottom: 2rem;
     }
 
+    h1 {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .subtitle {
+      margin-top: 0.8rem;
+      font-size: clamp(0.7rem, 3vw, 0.8rem);
+    }
+
+    /* ===== Cards (same style as the event box on the home) ===== */
     .archive-column {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 14px;
     }
 
     .event-card {
-      background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: 0.4s ease;
-    }
-
-    .event-card.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .event-top {
+      background: #f5f5f5;
+      border: 1px solid #000;
+      padding: clamp(0.8rem, 3vw, 1.1rem);
+      min-height: clamp(96px, 24vw, 120px);
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      gap: 14px;
-      align-items: flex-start;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(8px, 2.5vw, 12px);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.35s ease;
     }
 
-    .event-date {
-      background: #fff;
-      color: #000;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      border: 1px solid #fff;
-      transition: 0.2s ease;
-      flex-shrink: 0;
-    }
-
-    .event-date:hover {
-      background: #000;
-      color: #fff;
-      border: 1px solid #fff;
-      transform: translateY(-1px);
-    }
+    .event-card.is-visible { opacity: 1; }
 
     .event-place {
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
-      text-align: right;
-      line-height: 1.2;
-      color: #fff;
+      font-size: clamp(0.85rem, 3.2vw, 1rem);
+      line-height: 1.3;
+      text-transform: uppercase;
     }
 
     .event-city {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.7);
+      font-size: clamp(0.75rem, 2.8vw, 0.85rem);
+      line-height: 1.3;
     }
 
+    /* Date = the black RSVP-style button */
+    .event-date {
+      display: inline-block;
+      padding: clamp(0.35rem, 1.6vw, 0.5rem) clamp(0.7rem, 3vw, 1rem);
+      border: 1px solid #000;
+      background: #000;
+      color: #fff;
+      font-family: 'Courier Prime', monospace;
+      font-size: clamp(0.72rem, 2.8vw, 0.9rem);
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .event-date:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    .event-date:focus-visible,
+    .close-btn:focus-visible,
+    .back-link:focus-visible {
+      outline: 2px solid #000;
+      outline-offset: 3px;
+    }
+
+    /* ===== Flyer modal ===== */
     .modal {
       position: fixed;
       inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 18px;
-      background: rgba(255,255,255,0.14);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: rgba(255,255,255,0.75);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.28s ease;
+      transition: opacity 0.2s ease;
       z-index: 9999;
       overflow: hidden;
     }
@@ -124,103 +127,87 @@
       position: fixed;
       left: 50%;
       top: 50%;
-      width: min(92vw, 520px);
+      width: min(92vw, 480px);
       max-height: 88vh;
-      background: rgba(255,255,255,0.88);
-      border: 1px solid rgba(0,0,0,0.10);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.22);
-      transform: translate(-50%, calc(-50% + 18px)) scale(0.96);
-      transition: transform 0.32s ease;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      will-change: left, top, transform;
+      display: flex;
+      flex-direction: column;
+      background: #f5f5f5;
+      border: 1px solid #000;
+      transform: translate(-50%, -50%);
     }
 
-    .modal.open .modal-window {
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .modal-window.is-dragged {
-      transform: translate(0, 0) scale(1);
-      transition: none;
-    }
+    .modal-window.is-dragged { transform: none; }
 
     .window-bar {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(0,0,0,0.08);
-      background: rgba(255,255,255,0.65);
+      align-items: stretch;
+      justify-content: space-between;
+      background: #000;
+      color: #fff;
+      cursor: grab;
+      touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-    }
-
-
-    .window-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: none;
-      padding: 0;
-      display: inline-block;
-      cursor: default;
       flex-shrink: 0;
     }
 
-    .window-dot.red {
-      background: #ff5f57;
-      cursor: pointer;
-    }
-
-    .window-dot.yellow {
-      background: #febc2e;
-    }
-
-    .window-dot.green {
-      background: #28c840;
-    }
+    .window-bar.dragging { cursor: grabbing; }
 
     .window-title {
-      margin-left: 10px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 600;
-      opacity: 0.75;
+      padding: 0.55rem 0.8rem;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    .close-btn {
+      padding: 0 0.9rem;
+      border: none;
+      border-left: 1px solid #fff;
+      background: #000;
+      color: #fff;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .close-btn:hover {
+      background: #fff;
+      color: #000;
+    }
+
     .modal-content {
-      padding: 16px;
+      padding: 14px;
+      overflow-y: auto;
     }
 
     .modal-meta {
-      margin-bottom: 14px;
       text-align: center;
+      margin-bottom: 12px;
     }
 
     .modal-event-date {
-      font-family: 'Inter', sans-serif;
       font-weight: 700;
       font-size: 0.95rem;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .modal-event-place {
       font-size: 0.8rem;
-      opacity: 0.65;
+      text-transform: uppercase;
     }
 
     .flyer-frame {
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.08);
-      background: white;
-      min-height: 260px;
+      border: 1px solid #000;
+      background: #fff;
+      min-height: 240px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -238,54 +225,40 @@
       padding: 40px 20px;
       text-align: center;
       font-size: 0.8rem;
-      opacity: 0.5;
-      line-height: 1.5;
     }
 
+    /* ===== Back link (same as home footer links) ===== */
     .back-link {
       display: block;
-      text-align: center;
-      margin-top: 2rem;
-      font-size: 0.7rem;
+      width: max-content;
+      margin: 2rem auto 0;
+      font-size: 0.75rem;
       color: #000;
       text-decoration: none;
     }
 
-    .back-link:hover {
-      text-decoration: underline;
-    }
+    .back-link:hover { text-decoration: underline; }
 
-    @media (max-width: 560px) {
-      body {
-        padding-top: 24px;
-      }
-
-      .modal-window {
-        width: min(94vw, 520px);
-      }
-
-      .event-place {
-        font-size: 0.86rem;
-      }
+    @media (prefers-reduced-motion: reduce) {
+      .event-card, .modal { transition: none; }
     }
   </style>
 </head>
 <body>
 
-<h1>EVENT ARCHIVE</h1>
-<p class="subtitle">ARCHIVE — past events</p>
+<header class="page-header">
+  <h1>Event Archive</h1>
+</header>
 
 <div class="archive-column" id="archive"></div>
 
-<a href="index.html" class="back-link">← Back to Home</a>
+<a href="index.html" class="back-link">← back to home</a>
 
-<div class="modal" id="modal">
-  <div class="modal-window" id="modal-window">
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-window" id="modal-window" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="window-bar" id="window-bar">
-      <button class="window-dot red" id="close-modal" aria-label="Close flyer"></button>
-      <span class="window-dot yellow"></span>
-      <span class="window-dot green"></span>
-      <div class="window-title">Flyer Preview</div>
+      <div class="window-title">Flyer</div>
+      <button class="close-btn" id="close-modal" aria-label="Close flyer">X</button>
     </div>
 
     <div class="modal-content">
@@ -294,10 +267,8 @@
         <div class="modal-event-place" id="modal-place"></div>
       </div>
 
-      <div class="flyer-frame" id="flyer-frame">
-        <div class="flyer-placeholder" id="flyer-placeholder">
-          Flyer coming soon
-        </div>
+      <div class="flyer-frame">
+        <div class="flyer-placeholder" id="flyer-placeholder">Flyer coming soon</div>
         <img id="flyer-image" class="flyer-image" src="" alt="" style="display:none;">
       </div>
     </div>
@@ -305,6 +276,9 @@
 </div>
 
 <script>
+/* ===== EVENTS =====
+   Format: ["date", "venue", "city", "flyer image path (optional)"]
+   Example flyer: "flyers/satori.jpg"                                  */
 const events = [
   ["19.09.2026","Satori","Giovinazzo",""],
   ["15.08.2026","MV :)","",""],
@@ -349,28 +323,35 @@ const flyerImage = document.getElementById("flyer-image");
 const flyerPlaceholder = document.getElementById("flyer-placeholder");
 const closeModalBtn = document.getElementById("close-modal");
 
+/* ===== BUILD CARDS ===== */
 events.forEach((e, i) => {
-  const el = document.createElement("div");
-  el.className = "event-card";
+  const [date, place, city] = e;
+  const card = document.createElement("div");
+  card.className = "event-card";
 
-  el.innerHTML = `
-    <div class="event-top">
-      <div class="event-date">${e[0]}</div>
-      <div class="event-place">${e[1]}</div>
-    </div>
-    <div class="event-city">${e[2]}</div>
-  `;
+  const placeEl = document.createElement("p");
+  placeEl.className = "event-place";
+  placeEl.textContent = place;
+  card.appendChild(placeEl);
 
-  const dateBtn = el.querySelector(".event-date");
+  if (city) {
+    const cityEl = document.createElement("p");
+    cityEl.className = "event-city";
+    cityEl.textContent = city;
+    card.appendChild(cityEl);
+  }
+
+  const dateBtn = document.createElement("button");
+  dateBtn.className = "event-date";
+  dateBtn.textContent = date;
   dateBtn.addEventListener("click", () => openModal(e));
+  card.appendChild(dateBtn);
 
-  container.appendChild(el);
-
-  setTimeout(() => {
-    el.classList.add("is-visible");
-  }, i * 55);
+  container.appendChild(card);
+  setTimeout(() => card.classList.add("is-visible"), i * 40);
 });
 
+/* ===== MODAL ===== */
 function resetWindowPosition() {
   modalWindow.classList.remove("is-dragged");
   modalWindow.style.left = "50%";
@@ -396,39 +377,61 @@ function openModal(eventData) {
 
   resetWindowPosition();
   modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  closeModalBtn.focus();
 }
 
 function closeModal() {
   modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
 }
 
 closeModalBtn.addEventListener("click", closeModal);
+modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    closeModal();
-  }
+/* ===== DRAG THE WINDOW BY ITS BLACK BAR ===== */
+let isDragging = false;
+let currentPointerId = null;
+let offX = 0, offY = 0;
+
+windowBar.addEventListener("pointerdown", (e) => {
+  if (e.target === closeModalBtn) return;
+  const rect = modalWindow.getBoundingClientRect();
+  modalWindow.classList.add("is-dragged");
+  modalWindow.style.left = rect.left + "px";
+  modalWindow.style.top = rect.top + "px";
+  offX = e.clientX - rect.left;
+  offY = e.clientY - rect.top;
+  isDragging = true;
+  currentPointerId = e.pointerId;
+  windowBar.setPointerCapture(e.pointerId);
+  windowBar.classList.add("dragging");
 });
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeModal();
-  }
-});
-
-windowBar.addEventListener("lostpointercapture", () => {
-  isDragging = false;
-  currentPointerId = null;
-  windowBar.classList.remove("dragging");
-});
-
-window.addEventListener("resize", () => {
-  if (!modal.classList.contains("open") || !modalWindow.classList.contains("is-dragged")) return;
-
+windowBar.addEventListener("pointermove", (e) => {
+  if (!isDragging || e.pointerId !== currentPointerId) return;
   const rect = modalWindow.getBoundingClientRect();
   const maxLeft = Math.max(0, window.innerWidth - rect.width);
   const maxTop = Math.max(0, window.innerHeight - rect.height);
+  modalWindow.style.left = Math.max(0, Math.min(e.clientX - offX, maxLeft)) + "px";
+  modalWindow.style.top = Math.max(0, Math.min(e.clientY - offY, maxTop)) + "px";
+});
 
+function endDrag() {
+  isDragging = false;
+  currentPointerId = null;
+  windowBar.classList.remove("dragging");
+}
+windowBar.addEventListener("pointerup", endDrag);
+windowBar.addEventListener("pointercancel", endDrag);
+windowBar.addEventListener("lostpointercapture", endDrag);
+
+window.addEventListener("resize", () => {
+  if (!modal.classList.contains("open") || !modalWindow.classList.contains("is-dragged")) return;
+  const rect = modalWindow.getBoundingClientRect();
+  const maxLeft = Math.max(0, window.innerWidth - rect.width);
+  const maxTop = Math.max(0, window.innerHeight - rect.height);
   modalWindow.style.left = Math.max(0, Math.min(rect.left, maxLeft)) + "px";
   modalWindow.style.top = Math.max(0, Math.min(rect.top, maxTop)) + "px";
 });
@@ -436,4 +439,3 @@ window.addEventListener("resize", () => {
 
 </body>
 </html>
-
