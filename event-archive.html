@@ -94,9 +94,17 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .event-date:hover {
+    .event-date:hover:not(:disabled) {
       background: #fff;
       color: #000;
+    }
+
+    /* Greyed-out, non-clickable date (e.g. MV events) */
+    .event-date:disabled {
+      background: #bdbdbd;
+      border-color: #bdbdbd;
+      color: #fff;
+      cursor: not-allowed;
     }
 
     .event-date:focus-visible,
@@ -350,7 +358,11 @@ events.forEach((e, i) => {
   const dateBtn = document.createElement("button");
   dateBtn.className = "event-date";
   dateBtn.textContent = date;
-  dateBtn.addEventListener("click", () => openModal(e));
+  if (place.startsWith("MV")) {
+    dateBtn.disabled = true;           /* MV dates: greyed out, no popup */
+  } else {
+    dateBtn.addEventListener("click", () => openModal(e));
+  }
   card.appendChild(dateBtn);
 
   container.appendChild(card);
