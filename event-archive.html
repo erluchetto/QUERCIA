@@ -127,7 +127,8 @@
       position: fixed;
       left: 50%;
       top: 50%;
-      width: min(92vw, 480px);
+      width: max-content;
+      max-width: 92vw;
       max-height: 88vh;
       display: flex;
       flex-direction: column;
@@ -207,21 +208,25 @@
     .flyer-frame {
       border: 1px solid #000;
       background: #fff;
+      line-height: 0;
+    }
+
+    /* The window shrinks to the flyer: no empty bands on the sides */
+    .flyer-image {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: min(calc(92vw - 30px), 640px);
+      max-height: 65vh;
+    }
+
+    .flyer-placeholder {
+      width: min(calc(92vw - 30px), 420px);
       min-height: 240px;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .flyer-image {
-      display: block;
-      width: 100%;
-      height: auto;
-      max-height: 65vh;
-      object-fit: contain;
-    }
-
-    .flyer-placeholder {
+      line-height: 1.3;
       padding: 40px 20px;
       text-align: center;
       font-size: 0.8rem;
@@ -373,7 +378,7 @@ function openModal(eventData) {
   } else {
     flyerImage.src = "";
     flyerImage.style.display = "none";
-    flyerPlaceholder.style.display = "block";
+    flyerPlaceholder.style.display = "flex";
   }
 
   resetWindowPosition();
