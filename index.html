@@ -20,6 +20,39 @@
       position: relative;
     }
 
+    /* ===== Top ticker banner ===== */
+    .ticker {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 20px;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+      z-index: 9998; /* under floating letters, above everything else */
+      display: flex;
+      align-items: center;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: ticker-scroll 50s linear infinite;
+      will-change: transform;
+    }
+    .ticker-group { display: flex; }
+    .ticker-group span { padding-right: 3rem; }
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
     /* ===== Scattered draggable letters ===== */
     #letters-layer {
       position: fixed;
@@ -179,6 +212,33 @@
   </style>
 </head>
 <body>
+
+  <!-- TOP TICKER BANNER -->
+  <div class="ticker" aria-label="We care about good music, not good websites. This one was designed in a club bathroom. The real homepage is the dancefloor. No cookies, only basslines.">
+    <div class="ticker-track" aria-hidden="true">
+      <!-- group = sequence 1→4 twice; both groups identical for seamless loop -->
+      <div class="ticker-group">
+        <span>We care about good music, not good websites</span>
+        <span>This one was designed in a club bathroom</span>
+        <span>The real homepage is the dancefloor</span>
+        <span>No cookies, only basslines</span>
+        <span>We care about good music, not good websites</span>
+        <span>This one was designed in a club bathroom</span>
+        <span>The real homepage is the dancefloor</span>
+        <span>No cookies, only basslines</span>
+      </div>
+      <div class="ticker-group">
+        <span>We care about good music, not good websites</span>
+        <span>This one was designed in a club bathroom</span>
+        <span>The real homepage is the dancefloor</span>
+        <span>No cookies, only basslines</span>
+        <span>We care about good music, not good websites</span>
+        <span>This one was designed in a club bathroom</span>
+        <span>The real homepage is the dancefloor</span>
+        <span>No cookies, only basslines</span>
+      </div>
+    </div>
+  </div>
 
   <!-- Scattered draggable letters get injected here -->
   <div id="letters-layer"></div>
