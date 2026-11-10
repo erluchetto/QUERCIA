@@ -376,21 +376,73 @@ function resetWindowPosition() {
   modalWindow.style.top = "50%";
 }
 
+/* Light preview copy: assets/flyers/x.jpg -> assets/flyers/web/x.webp */
+function previewSrc(flyer) {
+  return flyer.replace(/^(.*\/)([^\/]+)\.[a-z]+$/i, "$1web/$2.webp");
+}
+
+/* Preload every flyer in the background so a click shows it instantly.
+   Keeping the Image objects alive keeps them decoded in memory. */
+const preloaded = {};
+function preloadFlyers() {
+  events.forEach(([, , , flyer]) => {
+    if (!flyer || preloaded[flyer]) return;
+    const img = new Image();
+    img.decoding = "async";
+    img.src = previewSrc(flyer);
+    preloaded[flyer] = img;
+  });
+}
+if (document.readyState === "complete") preloadFlyers();
+else window.addEventListener("load", preloadFlyers);
+
+let openToken = 0;
+
+function showPlaceholder(text) {
+  flyerImage.style.display = "none";
+  flyerPlaceholder.textContent = text;
+  flyerPlaceholder.style.display = "flex";
+}
+
 function openModal(eventData) {
   const [date, place, city, flyer] = eventData;
+  const token = ++openToken;
 
   modalTitle.textContent = date;
   modalPlace.textContent = city ? `${place} — ${city}` : place;
 
+  /* Never show the previous flyer: wipe the image first */
+  flyerImage.style.display = "none";
+  flyerImage.removeAttribute("src");
+
   if (flyer && flyer.trim() !== "") {
-    flyerImage.src = flyer;
-    flyerImage.alt = `${date} ${place}`;
-    flyerImage.style.display = "block";
-    flyerPlaceholder.style.display = "none";
+    const src = previewSrc(flyer);
+    const reveal = () => {
+      if (token !== openToken) return;          /* user already opened another */
+      flyerImage.alt = `${date} ${place}`;
+      flyerImage.src = src;
+      flyerImage.style.display = "block";
+      flyerPlaceholder.style.display = "none";
+    };
+    const cached = preloaded[flyer];
+    if (cached && cached.complete && cached.naturalWidth) {
+      reveal();                                  /* already downloaded: instant */
+    } else {
+      showPlaceholder("Loading…");
+      const img = cached || new Image();
+      img.addEventListener("load", reveal, { once: true });
+      img.addEventListener("error", () => {
+        if (token !== openToken) return;
+        /* fallback to the original file if the light copy is missing */
+        flyerImage.src = flyer;
+        flyerImage.alt = `${date} ${place}`;
+        flyerImage.style.display = "block";
+        flyerPlaceholder.style.display = "none";
+      }, { once: true });
+      if (!cached) { img.src = src; preloaded[flyer] = img; }
+    }
   } else {
-    flyerImage.src = "";
-    flyerImage.style.display = "none";
-    flyerPlaceholder.style.display = "flex";
+    showPlaceholder("Flyer coming soon");
   }
 
   resetWindowPosition();
@@ -400,8 +452,12 @@ function openModal(eventData) {
 }
 
 function closeModal() {
+  openToken++;
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
+  /* clear right away so the old flyer can't flash on the next open */
+  flyerImage.style.display = "none";
+  flyerImage.removeAttribute("src");
 }
 
 closeModalBtn.addEventListener("click", closeModal);
